@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <!-- Navbar -->
+    <header class="bg-[#FBFDFC] text-blue-600 py-4 shadow-md">
+        <div class="container mx-auto px-4 flex items-center justify-between">
+            <!-- Logo -->
+            <a href="/" class="flex items-center">
+                <img src="./img/logo.png" alt="Logo Resenhahub" class="h-16">
+            </a>
+            <!-- Navegação -->
+            <nav class="flex items-center space-x-4">
+                <ul class="flex space-x-4">
+                    <li><a href="/" class="text-lg font-semibold hover:text-orange-500">Início</a></li>
+                    <li><a href="#" class="text-lg font-semibold hover:text-orange-500">Resenhas</a></li>
+                    <li><a href="#" class="text-lg font-semibold hover:text-orange-500">Sobre</a></li>
+                    <li><a href="#" class="text-lg font-semibold hover:text-orange-500">Contato</a></li>
+                </ul>
+                <!-- Botões de Login e Cadastro (mostrados quando não logado) -->
+                <div id="auth-buttons" class="space-x-4">
+                    <a href="/login" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Login</a>
+                    <a href="/cadastro" class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600">Cadastro</a>
+                </div>
+                <!-- Botão de Logout (mostrado quando logado) -->
+                <div id="logout-section" class="hidden">
+                    <a href="/logout" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">Logout</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Conteúdo principal -->
+    <div class="flex items-center justify-center min-h-screen py-8">
+        <div class="w-full max-w-sm bg-white shadow-md rounded-lg p-8">
+            <h2 class="text-2xl font-bold text-center mb-6">Cadastro</h2>
+            <form action="/cadastro" method="POST">
+                <div class="mb-4">
+                    <label for="name" class="block text-sm font-medium text-gray-700">Nome</label>
+                    <input 
+                        type="text" 
+                        name="name" 
+                        id="name" 
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" 
+                        required
+                    >
+                </div>
+
+                <div class="mb-4">
+                    <label for="email" class="block text-sm font-medium text-gray-700">E-mail</label>
+                    <input 
+                        type="email" 
+                        name="email" 
+                        id="email" 
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" 
+                        required
+                    >
+                </div>
+
+                <div class="mb-4">
+                    <label for="password" class="block text-sm font-medium text-gray-700">Senha</label>
+                    <input 
+                        type="password" 
+                        name="password" 
+                        id="password" 
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" 
+                        required
+                    >
+                </div>
+                
+                <div class="mb-6">
+                    <label for="confirm_password" class="block text-sm font-medium text-gray-700">Confirme a Senha</label>
+                    <input 
+                        type="password" 
+                        name="confirm_password" 
+                        id="confirm_password" 
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" 
+                        required
+                    >
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <button 
+                        type="submit" 
+                        class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                        Cadastrar
+                    </button>
+                </div>
+            </form>
+
+            <p class="mt-4 text-center text-sm text-gray-600">
+                Já tem uma conta? <a href="/login" class="text-indigo-600 hover:text-indigo-500">Entrar</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Função para verificar se o usuário está autenticado
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch('/auth/status');
+                const data = await response.json();
+                
+                const authButtons = document.getElementById('auth-buttons');
+                const logoutSection = document.getElementById('logout-section');
+                
+                if (data.authenticated) {
+                    // Usuário está logado - mostrar logout, esconder login/cadastro
+                    authButtons.classList.add('hidden');
+                    logoutSection.classList.remove('hidden');
+                } else {
+                    // Usuário não está logado - mostrar login/cadastro, esconder logout
+                    authButtons.classList.remove('hidden');
+                    logoutSection.classList.add('hidden');
+                }
+            } catch (error) {
+                console.error('Erro ao verificar status de autenticação:', error);
+                // Em caso de erro, mostrar botões de login/cadastro por padrão
+                const authButtons = document.getElementById('auth-buttons');
+                const logoutSection = document.getElementById('logout-section');
+                authButtons.classList.remove('hidden');
+                logoutSection.classList.add('hidden');
+            }
+        }
+
+        // Verificar status de autenticação quando a página carregar
+        window.onload = checkAuthStatus;
+    </script>
+</body>
+</html>

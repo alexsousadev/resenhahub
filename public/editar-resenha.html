@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Resenha</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.5.1/tinymce.min.js" referrerpolicy="origin"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilo para a mensagem fixa */
+        #message {
+    margin-top: 3%;
+    z-index: 1000;
+    width: 400px;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    left: 50%; /* Centraliza horizontalmente */
+    transform: translate(-50%, -50%); /* Ajuste para a centralização perfeita */
+    position: fixed; /* Para que a mensagem fique fixa no centro */
+}
+
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+    <div id="message" class="fixed top-0 left-0 right-0 p-4 mt-4 hidden" role="alert"></div> <!-- Mensagem de confirmação no topo -->
+
+    <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md mt-16"> <!-- Adicionado margem superior -->
+        <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Editar Resenha</h1>
+        
+        <form id="editReviewForm" method="POST">
+            <div class="mb-4">
+                <label for="title" class="block text-sm font-medium text-gray-700 mb-2">Título da Resenha</label>
+                <input type="text" id="title" name="title" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            </div>
+            
+            <div class="mb-4">
+                <label for="content" class="block text-sm font-medium text-gray-700 mb-2">Conteúdo da Resenha</label>
+                <textarea id="content" name="content"></textarea>
+            </div>
+            
+            <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-300">Salvar Alterações</button>
+        </form>
+    </div>
+
+    <script>
+        // Inicializa o TinyMCE para o campo de conteúdo
+        tinymce.init({
+            selector: '#content',
+            height: 300,
+            menubar: false,
+            plugins: [
+                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
+            ],
+            toolbar: 'undo redo | blocks | bold italic backcolor | ' +
+                'alignleft aligncenter alignright alignjustify | ' +
+                'bullist numlist outdent indent | removeformat | help',
+            content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif; font-size: 14px; line-height: 1.6; }'
+        });
+
+        // Carrega a resenha existente para edição
+        async function fetchReview() {
+            const reviewId = window.location.pathname.split("/").pop(); // Obtém o ID da resenha da URL
+
+            try {
+                const response = await fetch(`/api/resenha/${reviewId}`);
+                const review = await response.json();
+
+                // Preenche o formulário com os dados da resenha
+                document.getElementById('title').value = review.titulo;
+                tinymce.get('content').setContent(review.conteudo);
+            } catch (error) {
+                console.error('Erro ao carregar a resenha:', error);
+                showMessage('Ocorreu um erro ao carregar a resenha.', 'error');
+            }
+        }
+
+        // Função para exibir mensagem
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = message;
+            messageDiv.className = `fixed top-0 left-0 right-0 p-4 mt-4 rounded-md ${type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'} shadow-md`;
+            messageDiv.classList.remove('hidden');
+            setTimeout(() => {
+                messageDiv.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Chama a função para carregar a resenha quando a página carrega
+        window.onload = fetchReview;
+
+        // Lida com a submissão do formulário
+        document.getElementById('editReviewForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('title').value;
+            const content = tinymce.get('content').getContent();
+            const reviewId = window.location.pathname.split("/").pop(); // Obtém o ID da resenha da URL
+
+            if (title && content) {
+                fetch(`/api/resenha/${reviewId}`, {
+                    method: 'PUT', // Envia como PUT para editar
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ title, content }),
+                })
+                .then(response => {
+                    if (response.ok) {
+                        showMessage('Resenha editada com sucesso!', 'success');
+                        // Redireciona para a página de visualização de resenhas após um curto atraso
+                        setTimeout(() => {
+                            window.location.href = `/minhas-resenhas`;
+                        }, 2000);
+                    } else {
+                        throw new Error('Erro ao editar resenha.');
+                    }
+                })
+                .catch((error) => {
+                    console.error('Erro:', error);
+                    showMessage('Ocorreu um erro ao salvar as alterações.', 'error');
+                });
+            } else {
+                showMessage('Por favor, preencha todos os campos.', 'error');
+            }
+        });
+    </script>
+</body>
+</html>

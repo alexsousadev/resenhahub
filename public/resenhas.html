@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minhas Resenhas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+  <div class="container mx-auto p-4">
+    <h1 class="text-3xl font-bold text-center mb-6">Minhas Resenhas</h1>
+
+    <div id="review-list" class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      <!-- As resenhas serão carregadas aqui dinamicamente -->
+    </div>
+  </div>
+
+<script>
+  // Função para buscar todas as resenhas da API
+  async function loadReviews() {
+    try {
+      const response = await fetch('/api/resenhas');
+      const reviews = await response.json();
+      
+      const reviewList = document.getElementById('review-list');
+      reviewList.innerHTML = ''; // Limpa a lista antes de renderizar
+
+      // Verifica se há resenhas
+      if (reviews.length === 0) {
+        // Mostra mensagem quando não há resenhas
+        const emptyState = document.createElement('div');
+        emptyState.className = 'col-span-full text-center py-12';
+        emptyState.innerHTML = `
+          <div class="bg-white shadow-md rounded-lg p-8 max-w-md mx-auto">
+            <div class="text-6xl mb-4">📝</div>
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">Nenhuma resenha encontrada</h3>
+            <p class="text-gray-600 mb-6">Você ainda não criou nenhuma resenha. Que tal começar agora?</p>
+            <a href="/criar-resenha" class="inline-block bg-blue-500 text-white px-6 py-3 rounded-md hover:bg-blue-600 transition duration-300">
+              Criar Minha Primeira Resenha
+            </a>
+          </div>
+        `;
+        reviewList.appendChild(emptyState);
+      } else {
+        // Renderiza cada resenha como um card
+        reviews.forEach(review => {
+          const reviewCard = document.createElement('div');
+          reviewCard.className = 'bg-white shadow-md rounded-lg p-6';
+          reviewCard.innerHTML = `
+            <h2 class="text-xl font-bold mb-2">${review.titulo}</h2>
+            <p class="text-gray-600 mb-4">${review.conteudo.substring(0, 100)}...</p>
+            <div class="text-sm text-gray-500 mb-3">
+              <span>Por: ${review.nome_usuario}</span><br>
+              <span>Criado em: ${review.dt_criacao}</span>
+            </div>
+            <a href="/resenha/${review.id}" class="text-blue-500 hover:underline">Ler mais</a>
+          `;
+          reviewList.appendChild(reviewCard);
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao carregar resenhas:', error);
+      // Mostra mensagem de erro
+      const reviewList = document.getElementById('review-list');
+      reviewList.innerHTML = `
+        <div class="col-span-full text-center py-12">
+          <div class="bg-white shadow-md rounded-lg p-8 max-w-md mx-auto">
+            <div class="text-6xl mb-4">⚠️</div>
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">Erro ao carregar resenhas</h3>
+            <p class="text-gray-600 mb-6">Não foi possível carregar as resenhas. Tente novamente mais tarde.</p>
+            <button onclick="loadReviews()" class="inline-block bg-blue-500 text-white px-6 py-3 rounded-md hover:bg-blue-600 transition duration-300">
+              Tentar Novamente
+            </button>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  // Chama a função para carregar as resenhas assim que a página for carregada
+  window.onload = loadReviews;
+</script>
+</body>
+</html>

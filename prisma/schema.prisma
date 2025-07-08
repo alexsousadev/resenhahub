@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id          Int          @id @default(autoincrement())
+  nome        String
+  email       String       @unique
+  senha       String
+  resenhas    Resenha[]    @relation("UsuarioResenhas")
+  comentarios Comentario[] @relation("UsuarioComentarios")
+}
+
+model Resenha {
+  id               Int          @id @default(autoincrement())
+  titulo           String
+  dt_criacao       DateTime     @default(dbgenerated("CURRENT_TIMESTAMP"))
+  dt_ultima_edicao DateTime     @default(dbgenerated("CURRENT_TIMESTAMP"))
+  conteudo         String
+  usuario          Usuario      @relation("UsuarioResenhas", fields: [usuarioId], references: [id])
+  usuarioId        Int
+  comentarios      Comentario[] @relation("ResenhaComentarios")
+}
+
+model Comentario {
+  id          Int          @id @default(autoincrement())
+  texto       String
+  dt_criacao  DateTime     @default(now())
+  usuario     Usuario      @relation("UsuarioComentarios", fields: [usuarioId], references: [id])
+  usuarioId   Int
+  resenha     Resenha      @relation("ResenhaComentarios", fields: [resenhaId], references: [id])
+  resenhaId   Int
+  respostaA   Comentario?  @relation("RespostasComentario", fields: [respostaAId], references: [id])
+  respostaAId Int?
+  respostas   Comentario[] @relation("RespostasComentario")
+}

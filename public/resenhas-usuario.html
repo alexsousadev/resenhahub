@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minhas Resenhas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .alert {
+            z-index: 1000;
+            width: 400px;
+            text-align: center;
+            align-items: center;
+            justify-content: center;
+            top: 50%; /* Centraliza verticalmente */
+            left: 50%; /* Centraliza horizontalmente */
+            transform: translate(-50%, -50%); /* Ajuste para a centralização perfeita */
+            position: fixed; /* Para que a mensagem fique fixa no centro */
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-6">Minhas Resenhas</h1>
+        <div id="reviews-container" class="space-y-4"></div>
+    </div>
+
+    <script>
+        let reviews = []; // Armazena as resenhas globalmente
+
+        document.addEventListener('DOMContentLoaded', loadReviews);
+
+        async function loadReviews() {
+            try {
+                const response = await fetch('/api/resenhas-usuario');
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        window.location.href = '/login';
+                        return;
+                    }
+                    throw new Error('Falha ao carregar as resenhas');
+                }
+                reviews = await response.json();
+                console.log(reviews);
+                displayReviews();
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('reviews-container').innerHTML = `
+                    <p class="text-red-500">Erro ao carregar as resenhas. Por favor, tente novamente mais tarde.</p>
+                `;
+            }
+        }
+
+        function displayReviews() {
+            const container = document.getElementById('reviews-container');
+            if (reviews.length === 0) {
+                container.innerHTML = '<p class="text-gray-500">Você ainda não tem resenhas.</p>';
+                return;
+            }
+
+            const reviewsHTML = reviews.map(review => `
+                <div class="bg-white shadow rounded-lg p-6" data-review-id="${review.id}">
+                    <div class="flex justify-between items-start mb-4">
+                        <a href="/resenha/${review.id}"><h2 class="text-xl font-semibold">${review.titulo} <span class="text-sm text-gray-500">${review.dt_criacao}</span></h2></a>
+                        <div>
+                            <button onclick="editReview(${review.id})" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded">Editar</button>
+                            <button onclick="deleteReview(${review.id})" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded">Deletar</button>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">${review.conteudo.substring(0, 500)}...</p>
+                </div>
+            `).join('');
+
+            container.innerHTML = reviewsHTML;
+        }
+
+        async function deleteReview(id) {
+            const alertContainer = document.createElement('div');
+            alertContainer.className = 'alert';
+            alertContainer.id = 'alert-confirm';
+            alertContainer.innerHTML = `
+                <div class="bg-red-600 text-white p-4 rounded shadow-md">
+                    <p>Tem certeza que deseja deletar esta resenha?</p>
+                    <button onclick="confirmDelete(${id})" class="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded">Sim</button>
+                    <button onclick="closeAlert()" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-1 px-2 rounded">Não</button>
+                </div>
+            `;
+            document.body.appendChild(alertContainer);
+        }
+
+        function closeAlert() {
+            const alert = document.getElementById('alert-confirm');
+            if (alert) alert.remove();
+        }
+
+        async function confirmDelete(id) {
+            closeAlert(); // Fechar o alerta
+
+            try {
+                const response = await fetch(`/api/resenha/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Falha ao deletar a resenha');
+                }
+
+                // Remover a resenha da lista e atualizar a exibição
+                reviews = reviews.filter(review => review.id !== id);
+                displayReviews();
+                alertSuccess('Resenha deletada com sucesso!'); // Alerta de sucesso
+            } catch (error) {
+                console.error('Erro ao deletar a resenha:', error);
+                alertError('Erro ao deletar a resenha. Tente novamente mais tarde.'); // Alerta de erro
+            }
+        }
+
+        function alertSuccess(message) {
+            alertContainer('error', message);
+        }
+
+        function alertError(message) {
+            alertContainer('error', message);
+        }
+
+        function alertContainer(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert fixed bg-${type === 'success' ? 'green' : 'red'}-500 text-white p-4 rounded shadow-md`;
+            alertDiv.style.top = '20px'; // Posição do alerta
+            alertDiv.style.left = '50%';
+            alertDiv.style.transform = 'translateX(-50%)';
+            alertDiv.innerHTML = `<p>${message}</p>`;
+
+            document.body.appendChild(alertDiv);
+
+            // Remover o alerta após 3 segundos
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes da Resenha</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <article class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 id="titulo" class="text-3xl font-semibold mb-4"></h2>
+        <p id="data" class="text-gray-500 text-sm mb-6"></p>
+            <p id="conteudo" class="text-lg text-gray-700 mb-6">
+                  </p>
+    </article>
+
+        <!-- Seção de comentários -->
+        <div id="comments-section" class="bg-white shadow-lg rounded-lg p-6 mt-8 border border-gray-200">
+            <h3 class="text-3xl font-bold text-gray-800 mb-4">Comentários</h3>
+            <div id="comments-list" class="space-y-4"></div>
+        </div>
+
+        <!-- Formulário para adicionar comentários -->
+        <div class="bg-white shadow-lg rounded-lg p-6 mt-8 border border-gray-200">
+            <h3 class="text-3xl font-bold text-gray-800 mb-4">Deixe um comentário</h3>
+            <form id="comment-form" class="space-y-4">
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700">Nome</label>
+                    <input type="text" id="name" name="name" class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Seu nome">
+                </div>
+                <div>
+                    <label for="comment" class="block text-sm font-medium text-gray-700">Comentário</label>
+                    <textarea id="comment" name="comment" rows="4" class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Escreva seu comentário"></textarea>
+                </div>
+                <button type="submit" class="bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-200">Enviar Comentário</button>
+            </form>
+        </div>
+    </div>
+
+
+    <script>
+        async function fetchReview() {
+            const reviewId = window.location.pathname.split("/").pop();
+
+            try {
+                const response = await fetch(`/api/resenha/${reviewId}`);
+                const review = await response.json();
+
+
+                document.getElementById('titulo').textContent = review.titulo;
+                document.getElementById('data').textContent = `Por ${review.nome_usuario} | ${review.dt_criacao}`;
+                document.getElementById('conteudo').innerHTML = review.conteudo;
+
+                // Chama a função para buscar e exibir os comentários da resenha
+                fetchComments(reviewId);
+
+            } catch (error) {
+                console.error('Erro ao carregar a resenha:', error);
+                document.getElementById('review-container').innerHTML = `<p class="text-red-500">Erro ao carregar a resenha.</p>`;
+            }
+        }
+
+        // Função para buscar e exibir os comentários
+        async function fetchComments(reviewId) {
+            try {
+                const response = await fetch(`/resenhas/${reviewId}/listar`);
+                const comentarios = await response.json();
+                console.log(comentarios)
+                // Monta o HTML dinâmico com os comentários
+                let commentsHTML = '';
+                comentarios.forEach(comentario => {
+                    commentsHTML += `
+                        <div class="bg-gray-100 rounded-lg p-4 shadow mb-4">
+                            <p class="font-semibold text-gray-700">${comentario.nome}</p>
+                            <p class="text-gray-600">${comentario.conteudo}</p>
+                            <p class="text-sm text-gray-500 mt-2">Publicado em ${new Date(comentario.dt_criacao).toLocaleDateString()}</p>
+                        </div>
+                    `;
+                });
+
+                document.getElementById('comments-list').innerHTML = commentsHTML;
+
+            } catch (error) {
+                console.error('Erro ao carregar os comentários:', error);
+                document.getElementById('comments-section').innerHTML = `<p class="text-red-500">Erro ao carregar os comentários.</p>`;
+            }
+        }
+
+        // Chama a função para carregar a resenha assim que a página carrega
+        window.onload = fetchReview;
+    </script>
+</body>
+</html>

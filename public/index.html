@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resenhahub</title>
+    <link rel="stylesheet" href="./dist/output.css">
+    <link rel="icon" href="./img/favicon.png" type="image/x-icon">
+</head>
+<body class="bg-[#19294A]">
+    <!-- Navbar com fundo branco e logo maior -->
+    <header class="bg-[#FBFDFC] text-blue-600 py-4 shadow-md">
+        <div class="container mx-auto px-4 flex items-center justify-between">
+            <!-- Logo aumentada -->
+            <img src="./img/logo.png" alt="Logo Resenhahub" class="h-20">
+            <!-- Navegação -->
+            <nav class="flex items-center space-x-4">
+                <ul class="flex space-x-4">
+                    <li><a href="#" class="text-lg font-semibold hover:text-orange-500">Resenhas</a></li>
+                </ul>
+                <!-- Botões de Login e Cadastro (mostrados quando não logado) -->
+                <div id="auth-buttons" class="space-x-4">
+                    <a href="/login" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Login</a>
+                    <a href="/cadastro" class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600">Cadastro</a>
+                </div>
+                <!-- Botões de Dashboard e Logout (mostrados quando logado) -->
+                <div id="logout-section" class="hidden space-x-4">
+                    <a href="/dashboard" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Dashboard</a>
+                    <a href="/logout" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">Logout</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Conteúdo principal -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Seção de apresentação (mostrada por padrão) -->
+        <div id="presentation" class="text-center py-16">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="text-5xl font-bold text-white mb-6">Bem-vindo ao Resenhahub</h1>
+                <p class="text-xl text-gray-300 mb-8 leading-relaxed">
+                    Descubra, compartilhe e explore resenhas de livros incríveis. 
+                    Conecte-se com outros leitores apaixonados e encontre sua próxima leitura favorita.
+                </p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                    <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+                        <div class="text-4xl mb-4">📚</div>
+                        <h3 class="text-xl font-semibold text-white mb-2">Descubra Livros</h3>
+                        <p class="text-gray-300">Explore resenhas detalhadas de diversos gêneros literários</p>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+                        <div class="text-4xl mb-4">✍️</div>
+                        <h3 class="text-xl font-semibold text-white mb-2">Compartilhe Opiniões</h3>
+                        <p class="text-gray-300">Escreva suas próprias resenhas e conecte-se com outros leitores</p>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+                        <div class="text-4xl mb-4">🤝</div>
+                        <h3 class="text-xl font-semibold text-white mb-2">Comunidade</h3>
+                        <p class="text-gray-300">Faça parte de uma comunidade apaixonada por literatura</p>
+                    </div>
+                </div>
+                
+                <div class="space-x-4">
+                    <a href="/cadastro" class="bg-orange-500 text-white px-8 py-3 rounded-lg hover:bg-orange-600 text-lg font-semibold transition-colors">
+                        Começar Agora
+                    </a>
+                    <a href="#reviews" class="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg hover:bg-white hover:text-blue-900 text-lg font-semibold transition-colors">
+                        Ver Resenhas
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção de resenhas -->
+        <div id="reviews-section" class="hidden bg-[#1a1c44] py-16 min-h-[60vh]">
+            <h2 class="text-3xl font-bold text-white mb-12 text-center">Resenhas Recentes</h2>
+            <div id="review-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 px-4 max-w-6xl mx-auto">
+                <!-- Resenhas serão carregadas dinamicamente aqui -->
+            </div>
+        </div>
+    </main>
+
+    <style>
+        /* Ajuste para os cards de resenha ficarem mais bonitos */
+        #review-list .review-card {
+            min-width: 320px;
+            max-width: 480px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+
+    <script>
+        // Função para verificar se o usuário está autenticado
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch('/auth/status');
+                const data = await response.json();
+                
+                const authButtons = document.getElementById('auth-buttons');
+                const logoutSection = document.getElementById('logout-section');
+                
+                if (data.authenticated) {
+                    // Usuário está logado - mostrar dashboard e logout, esconder login/cadastro
+                    authButtons.classList.add('hidden');
+                    logoutSection.classList.remove('hidden');
+                } else {
+                    // Usuário não está logado - mostrar login/cadastro, esconder dashboard/logout
+                    authButtons.classList.remove('hidden');
+                    logoutSection.classList.add('hidden');
+                }
+            } catch (error) {
+                console.error('Erro ao verificar status de autenticação:', error);
+                // Em caso de erro, mostrar botões de login/cadastro por padrão
+                const authButtons = document.getElementById('auth-buttons');
+                const logoutSection = document.getElementById('logout-section');
+                authButtons.classList.remove('hidden');
+                logoutSection.classList.add('hidden');
+            }
+        }
+
+        // Função para buscar todas as resenhas da API
+        async function loadReviews() {
+            try {
+                const response = await fetch('/api/resenhas'); // Faz a requisição para a API
+                const reviews = await response.json(); // Converte a resposta para JSON
+                
+                const presentation = document.getElementById('presentation');
+                const reviewsSection = document.getElementById('reviews-section');
+                const reviewList = document.getElementById('review-list');
+
+                // Verifica se há resenhas
+                if (reviews && reviews.length > 0) {
+                    // Mostra a seção de resenhas e esconde a apresentação
+                    presentation.classList.add('hidden');
+                    reviewsSection.classList.remove('hidden');
+                    
+                    reviewList.innerHTML = ''; // Limpa o conteúdo anterior
+
+                    // Itera sobre as resenhas e renderiza cada uma delas
+                    reviews.forEach(review => {
+                        // Verifica se o campo 'conteudo' existe
+                        const content = review.conteudo ? review.conteudo.substring(0, 180) : 'Conteúdo não disponível';
+                        const title = review.titulo || 'Título não disponível';
+                        const author = review.usuario || 'Autor desconhecido';
+                        const date = review.dt_criacao ? new Date(review.dt_criacao).toLocaleDateString() : 'Data desconhecida';
+
+                        const reviewCard = document.createElement('div');
+                        reviewCard.className = 'review-card bg-white shadow-xl rounded-2xl p-8 flex flex-col justify-between h-full';
+                        reviewCard.innerHTML = `
+                            <div>
+                                <h2 class="text-2xl font-bold mb-3 text-gray-900">${title}</h2>
+                                <p class="text-gray-700 mb-6 text-lg leading-relaxed">${content}...</p>
+                            </div>
+                            <div class="flex flex-col gap-2 mt-auto">
+                                <p class="text-sm text-gray-500">Por ${author} | ${date}</p>
+                                <a href="/resenha/${review.id}" class="inline-block mt-2 bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors text-center">Ler mais</a>
+                            </div>
+                        `;
+                        reviewList.appendChild(reviewCard);
+                    });
+                } else {
+                    // Se não há resenhas, mostra a apresentação
+                    presentation.classList.remove('hidden');
+                    reviewsSection.classList.add('hidden');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar resenhas:', error);
+                // Em caso de erro, mostra a apresentação
+                const presentation = document.getElementById('presentation');
+                const reviewsSection = document.getElementById('reviews-section');
+                presentation.classList.remove('hidden');
+                reviewsSection.classList.add('hidden');
+            }
+        }
+
+        // Chama as funções quando a página carregar
+        window.onload = function() {
+            checkAuthStatus();
+            loadReviews();
+        };
+    </script>
+</body>
+</html>

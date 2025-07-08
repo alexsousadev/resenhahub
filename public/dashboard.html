@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard do Usuário - ResenhaHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .alert {
+            z-index: 1000;
+            width: 400px;
+            text-align: center;
+            align-items: center;
+            justify-content: center;
+            top: 50%; /* Centraliza verticalmente */
+            left: 50%; /* Centraliza horizontalmente */
+            transform: translate(-50%, -50%); /* Ajuste para a centralização perfeita */
+            position: fixed; /* Para que a mensagem fique fixa no centro */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+    <div class="flex flex-col h-screen">
+        <!-- Navbar for mobile -->
+        <nav class="bg-gray-800 p-4 flex justify-between items-center md:hidden">
+            <a href="#" class="text-white text-2xl font-bold">ResenhaHub</a>
+            <button id="menu-toggle" class="text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                </svg>
+            </button>
+        </nav>
+
+        <div class="flex flex-1 overflow-hidden">
+            <!-- Sidebar -->
+            <nav id="sidebar" class="bg-gray-800 w-64 flex-shrink-0 hidden md:flex md:flex-col">
+                <div class="p-6 flex justify-between items-center">
+                    <a href="#" class="text-white text-2xl font-bold">ResenhaHub</a>
+                </div>
+                <ul class="mt-6 flex-grow">
+                    <li class="text-gray-300 hover:bg-gray-700 hover:text-white">
+                        <a href="/" class="flex items-center p-4">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                            </svg>
+                            <span class="text-lg">Início</span>
+                        </a>
+                    </li>
+                    <li class="text-gray-300 hover:bg-gray-700 hover:text-white">
+                        <a href="/minhas-resenhas" class="flex items-center p-4">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                            </svg>
+                            <span class="text-lg">Minhas Resenhas</span>
+                        </a>
+                    </li>
+                    <li class="text-gray-300 hover:bg-gray-700 hover:text-white">
+                        <a href="/criar-resenha" class="flex items-center p-4">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                            <span class="text-lg">Adicionar Nova Resenha</span>
+                        </a>
+                    </li>
+                    <li class="text-gray-300 hover:bg-gray-700 hover:text-white">
+                        <a href="#" class="flex items-center p-4">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                            </svg>
+                            <span class="text-lg">Livros Salvos</span>
+                        </a>
+                    </li>
+                </ul>
+                <button class="text-white bg-red-600 hover:bg-red-700 px-4 py-2 rounded mt-auto m-6">
+                    <a href="/logout">Sair</a>
+                </button>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="flex-1 p-6 overflow-y-auto">
+                <h1 class="text-3xl font-bold mb-6">Dashboard do Usuário</h1>
+
+                <!-- Cards de estatísticas -->
+                <div class="flex justify-center mb-8">
+                    <!-- Card Total de Resenhas -->
+                    <div class="bg-white rounded-lg shadow-lg p-8 text-center max-w-md w-full">
+                        <div class="flex items-center justify-center mb-4">
+                            <svg class="w-8 h-8 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                            </svg>
+                            <h2 class="text-2xl font-bold text-gray-800">Total de Resenhas</h2>
+                        </div>
+                        <p class="text-blue-600 text-5xl font-bold" id="total-reviews">0</p>
+                        <p class="text-gray-500 mt-2">resenhas criadas</p>
+                    </div>
+                </div>
+
+                <!-- Resenhas Recentes -->
+                <div class="mt-8">
+                    <h2 class="text-2xl font-bold mb-4">Minhas Resenhas</h2>
+                    <div id="reviews-container" class="space-y-4"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        let reviews = []; // Armazena as resenhas globalmente
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadReviews();
+            setupMobileMenu();
+        });
+
+        function setupMobileMenu() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('hidden');
+                sidebar.classList.toggle('fixed');
+                sidebar.classList.toggle('inset-0');
+                sidebar.classList.toggle('z-50');
+            });
+        }
+
+        async function loadReviews() {
+            try {
+                const response = await fetch('/api/resenhas-usuario');
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        window.location.href = '/login';
+                        return;
+                    }
+                    throw new Error('Falha ao carregar as resenhas');
+                }
+                reviews = await response.json();
+                console.log(reviews);
+                displayReviews();
+                updateTotalReviews();
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('reviews-container').innerHTML = `
+                    <p class="text-red-500">Erro ao carregar as resenhas. Por favor, tente novamente mais tarde.</p>
+                `;
+            }
+        }
+
+        function displayReviews() {
+            const container = document.getElementById('reviews-container');
+            if (reviews.length === 0) {
+                container.innerHTML = '<p class="text-gray-500">Você ainda não tem resenhas.</p>';
+                return;
+            }
+
+            const reviewsHTML = reviews.slice(0, 3).map(review => `
+                <div class="bg-white shadow rounded-lg p-6" data-review-id="${review.id}">
+                    <div class="flex flex-col md:flex-row justify-between items-start mb-4">
+                       <a href="/resenha/${review.id}"> <h2 class="text-xl font-semibold mb-2 md:mb-0">${review.titulo} <span class="text-sm text-gray-500">${review.dt_criacao}</span></h2> </a>
+                        <div class="space-y-2 md:space-y-0 md:space-x-2">
+                            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded">
+                                <a href="/editar-resenha/${review.id}">Editar</a>
+                            </button>
+                            <button onclick="deleteReview(${review.id})" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded">
+                                Deletar
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">${review.conteudo.substring(0, 500)}...</p>
+                </div>
+            `).join('');
+
+            container.innerHTML = reviewsHTML;
+        }
+
+        function updateTotalReviews() {
+            document.getElementById('total-reviews').textContent = reviews.length;
+        }
+
+        async function deleteReview(id) {
+            const alertContainer = document.createElement('div');
+            alertContainer.className = 'alert';
+            alertContainer.id = 'alert-confirm';
+            alertContainer.innerHTML = `
+                <div class="bg-red-600 text-white p-4 rounded shadow-md">
+                    <p>Tem certeza que deseja deletar esta resenha?</p>
+                    <button onclick="confirmDelete(${id})" class="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded">Sim</button>
+                    <button onclick="closeAlert()" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-1 px-2 rounded">Não</button>
+                </div>
+            `;
+            document.body.appendChild(alertContainer);
+        }
+
+        function closeAlert() {
+            const alert = document.getElementById('alert-confirm');
+            if (alert) alert.remove();
+        }
+
+        async function confirmDelete(id) {
+            closeAlert(); // Fechar o alerta
+
+            try {
+                const response = await fetch(`/api/resenha/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Falha ao deletar a resenha');
+                }
+
+                // Remover a resenha da lista e atualizar a exibição
+                reviews = reviews.filter(review => review.id !== id);
+                displayReviews();
+                updateTotalReviews();
+                alertSuccess('Resenha deletada com sucesso!'); // Alerta de sucesso
+            } catch (error) {
+                console.error('Erro ao deletar a resenha:', error);
+                alertError('Erro ao deletar a resenha. Tente novamente mais tarde.'); // Alerta de erro
+            }
+        }
+
+        function alertSuccess(message) {
+            alertContainer('success', message);
+        }
+
+        function alertError(message) {
+            alertContainer('error', message);
+        }
+
+        function alertContainer(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert fixed bg-${type === 'success' ? 'green' : 'red'}-500 text-white p-4 rounded shadow-md`;
+            alertDiv.style.top = '20px'; // Posição do alerta
+            alertDiv.style.left = '50%';
+            alertDiv.style.transform = 'translateX(-50%)';
+            alertDiv.innerHTML = `<p>${message}</p>`;
+
+            document.body.appendChild(alertDiv);
+
+            // Remover o alerta após 3 segundos
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
