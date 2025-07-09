@@ -23,17 +23,9 @@
         <!-- Formulário para adicionar comentários -->
         <div class="bg-white shadow-lg rounded-lg p-6 mt-8 border border-gray-200">
             <h3 class="text-3xl font-bold text-gray-800 mb-4">Deixe um comentário</h3>
-            <form id="comment-form" class="space-y-4">
-                <div>
-                    <label for="name" class="block text-sm font-medium text-gray-700">Nome</label>
-                    <input type="text" id="name" name="name" class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Seu nome">
-                </div>
-                <div>
-                    <label for="comment" class="block text-sm font-medium text-gray-700">Comentário</label>
-                    <textarea id="comment" name="comment" rows="4" class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Escreva seu comentário"></textarea>
-                </div>
-                <button type="submit" class="bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-200">Enviar Comentário</button>
-            </form>
+            <div id="comment-form-container">
+                <!-- O conteúdo será carregado dinamicamente baseado no status de autenticação -->
+            </div>
         </div>
     </div>
 
@@ -63,31 +55,141 @@
         // Função para buscar e exibir os comentários
         async function fetchComments(reviewId) {
             try {
-                const response = await fetch(`/resenhas/${reviewId}/listar`);
+                const response = await fetch(`/resenhas/${reviewId}/listar-comentarios`);
                 const comentarios = await response.json();
                 console.log(comentarios)
+                
                 // Monta o HTML dinâmico com os comentários
                 let commentsHTML = '';
-                comentarios.forEach(comentario => {
-                    commentsHTML += `
-                        <div class="bg-gray-100 rounded-lg p-4 shadow mb-4">
-                            <p class="font-semibold text-gray-700">${comentario.nome}</p>
-                            <p class="text-gray-600">${comentario.conteudo}</p>
-                            <p class="text-sm text-gray-500 mt-2">Publicado em ${new Date(comentario.dt_criacao).toLocaleDateString()}</p>
-                        </div>
-                    `;
-                });
+                
+                if (comentarios && comentarios.length > 0) {
+                    comentarios.forEach(comentario => {
+                        commentsHTML += `
+                            <div class="bg-gray-100 rounded-lg p-4 shadow mb-4">
+                                <p class="font-semibold text-gray-700">${comentario.nome_usuario}</p>
+                                <p class="text-gray-600">${comentario.texto}</p>
+                                <p class="text-sm text-gray-500 mt-2">Publicado em ${comentario.dt_criacao}</p>
+                            </div>
+                        `;
+                    });
+                } else {
+                    commentsHTML = '<p class="text-gray-500 text-center py-4">Nenhum comentário ainda. Seja o primeiro a comentar!</p>';
+                }
 
                 document.getElementById('comments-list').innerHTML = commentsHTML;
 
             } catch (error) {
                 console.error('Erro ao carregar os comentários:', error);
-                document.getElementById('comments-section').innerHTML = `<p class="text-red-500">Erro ao carregar os comentários.</p>`;
+                document.getElementById('comments-list').innerHTML = '<p class="text-red-500 text-center py-4">Erro ao carregar os comentários.</p>';
             }
         }
 
         // Chama a função para carregar a resenha assim que a página carrega
-        window.onload = fetchReview;
+        window.onload = function() {
+            fetchReview();
+            checkAuthAndLoadCommentForm();
+        };
+
+        // Função para verificar autenticação e carregar formulário de comentários
+        async function checkAuthAndLoadCommentForm() {
+            try {
+                const response = await fetch('/auth/status', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                const authData = await response.json();
+                const container = document.getElementById('comment-form-container');
+                
+                if (authData.authenticated) {
+                    // Usuário está logado - mostrar formulário de comentário
+                    container.innerHTML = `
+                        <form id="comment-form" class="space-y-4">
+                            <div>
+                                <label for="comment" class="block text-sm font-medium text-gray-700">Comentário</label>
+                                <textarea id="comment" name="comment" rows="4" class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Escreva seu comentário"></textarea>
+                            </div>
+                            <button type="submit" class="bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-200">Enviar Comentário</button>
+                        </form>
+                    `;
+                    
+                    // Adiciona event listener para o formulário
+                    const commentForm = document.getElementById('comment-form');
+                    if (commentForm) {
+                        commentForm.addEventListener('submit', handleCommentSubmit);
+                    }
+                } else {
+                    // Usuário não está logado - mostrar mensagem para fazer login
+                    container.innerHTML = `
+                        <div class="text-center py-6">
+                            <p class="text-gray-600 mb-4">Para deixar um comentário, você precisa estar logado.</p>
+                            <a href="/login" class="bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-200">
+                                Fazer Login
+                            </a>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Erro ao verificar autenticação:', error);
+                const container = document.getElementById('comment-form-container');
+                container.innerHTML = `
+                    <div class="text-center py-6">
+                        <p class="text-gray-600 mb-4">Para deixar um comentário, você precisa estar logado.</p>
+                        <a href="/login" class="bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-200">
+                            Fazer Login
+                        </a>
+                    </div>
+                `;
+            }
+        }
+
+        // Função para processar o envio de comentários
+        async function handleCommentSubmit(event) {
+            event.preventDefault();
+            
+            const reviewId = window.location.pathname.split("/").pop();
+            const commentInput = document.getElementById('comment');
+            const texto = commentInput.value.trim();
+            
+            if (!texto) {
+                alert('Por favor, escreva um comentário.');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/comentario/criar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ 
+                        texto, 
+                        resenhaId: parseInt(reviewId),
+                        respostaAId: null
+                    })
+                });
+                
+                if (response.ok) {
+                    // Limpa o formulário
+                    commentInput.value = '';
+                    
+                    // Recarrega os comentários
+                    fetchComments(reviewId);
+                    
+                    alert('Comentário enviado com sucesso!');
+                } else if (response.status === 401) {
+                    alert('Você precisa estar logado para comentar.');
+                    window.location.href = '/login';
+                } else {
+                    const error = await response.json();
+                    alert(`Erro ao enviar comentário: ${error.message}`);
+                }
+            } catch (error) {
+                console.error('Erro ao enviar comentário:', error);
+                alert('Erro ao enviar comentário. Tente novamente.');
+            }
+        }
     </script>
 </body>
 </html>

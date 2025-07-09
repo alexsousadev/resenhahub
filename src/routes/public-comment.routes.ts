@@ -11,7 +11,7 @@ router.get('/resenhas/:resenhaId/listar-comentarios', async (req: Request, res: 
         const comentarios = await listarComentarios(id);
 
         if (!comentarios.length) {
-            return res.status(404).send({ message: 'Nenhum comentário encontrado.' });
+            return res.status(200).send([]);
         }
         const comentariosFormatados = await formatRespostas(comentarios);
 
@@ -20,6 +20,5 @@ router.get('/resenhas/:resenhaId/listar-comentarios', async (req: Request, res: 
         res.status(500).send({ message: "Erro ao buscar comentários." });
     }
 });
-
 
 export default router;

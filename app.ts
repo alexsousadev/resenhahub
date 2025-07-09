@@ -6,6 +6,8 @@ import commentRoutes from './src/routes/public-comment.routes'
 import publicCommentRoutes from './src/routes/public-comment.routes'
 import privateCommentRoutes from './src/routes/private-comment.routes'
 import privateReviewRoutes from './src/routes/private-review.routes'
+import privateRatingRoutes from './src/routes/private-rating.routes'
+import publicRatingRoutes from './src/routes/public-rating.routes'
 import session from 'express-session'
 
 import path from 'path'
@@ -36,7 +38,7 @@ app.get("/", (req: Request, res: Response) => {
     res.sendFile(path.join(__dirname, '../public', 'index.html'));
 })
 
-app.use(publicReviewRoutes, userRoutes,publicCommentRoutes, privateCommentRoutes, commentRoutes, privateReviewRoutes)
+app.use(publicReviewRoutes, userRoutes,publicCommentRoutes, privateCommentRoutes, commentRoutes, privateReviewRoutes, privateRatingRoutes, publicRatingRoutes)
 
 app.listen(PORT, () => {
     console.log(`Server is running on  http://localhost:${PORT}`)

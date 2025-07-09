@@ -26,17 +26,14 @@ export const listarComentarios = async (id: number) => {
                 respostas: true //respostas ao comentario
             }
         });
-        if (!comentarios) {
-            throw new Error(`Os comentários da resenha ${id} não foram encontrados.`);
-        }
-        return comentarios;
+        return comentarios || [];
     } catch (error) {
         console.error(error);
         throw error;
     }
 };
 
-export const criarComentario = async (texto: string, usuarioId: number, resenhaId: number, respostaAId: number) => {
+export const criarComentario = async (texto: string, usuarioId: number, resenhaId: number, respostaAId?: number) => {
     try {
         const novoComentario = await prisma.comentario.create({
             data:
@@ -44,7 +41,7 @@ export const criarComentario = async (texto: string, usuarioId: number, resenhaI
                 texto,
                 usuarioId,
                 resenhaId,
-                respostaAId,
+                respostaAId: respostaAId || null,
             },
         });
 

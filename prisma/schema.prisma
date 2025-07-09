@@ -14,6 +14,14 @@ model Usuario {
   senha       String
   resenhas    Resenha[]    @relation("UsuarioResenhas")
   comentarios Comentario[] @relation("UsuarioComentarios")
+  avaliacoes  Avaliacao[]  @relation("UsuarioAvaliacoes")
+}
+
+model Categoria {
+  id          Int       @id @default(autoincrement())
+  nome        String    @unique
+  descricao   String?
+  resenhas    Resenha[] @relation("CategoriaResenhas")
 }
 
 model Resenha {
@@ -22,9 +30,12 @@ model Resenha {
   dt_criacao       DateTime     @default(dbgenerated("CURRENT_TIMESTAMP"))
   dt_ultima_edicao DateTime     @default(dbgenerated("CURRENT_TIMESTAMP"))
   conteudo         String
+  avaliacao        Float?       // Nota de 0 a 10
   usuario          Usuario      @relation("UsuarioResenhas", fields: [usuarioId], references: [id])
   usuarioId        Int
+  categorias       Categoria[]  @relation("CategoriaResenhas")
   comentarios      Comentario[] @relation("ResenhaComentarios")
+  avaliacoes       Avaliacao[]  @relation("ResenhaAvaliacoes")
 }
 
 model Comentario {
@@ -38,4 +49,16 @@ model Comentario {
   respostaA   Comentario?  @relation("RespostasComentario", fields: [respostaAId], references: [id])
   respostaAId Int?
   respostas   Comentario[] @relation("RespostasComentario")
+}
+
+model Avaliacao {
+  id        Int      @id @default(autoincrement())
+  nota      Float    // Nota de 0 a 10
+  dt_criacao DateTime @default(now())
+  usuario   Usuario  @relation("UsuarioAvaliacoes", fields: [usuarioId], references: [id])
+  usuarioId Int
+  resenha   Resenha  @relation("ResenhaAvaliacoes", fields: [resenhaId], references: [id])
+  resenhaId Int
+
+  @@unique([usuarioId, resenhaId]) // Um usuário só pode avaliar uma resenha uma vez
 }
