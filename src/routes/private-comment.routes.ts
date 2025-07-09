@@ -79,7 +79,7 @@ router.get('/api/comentario/respostas/:comentarioId', async (req: Request, res: 
         const respostas = await listarRespostas(comentarioId);
 
         if (!respostas.length) {
-            return res.status(404).send({ message: 'Nenhuma resposta encontrada.' });
+            return res.status(200).send([]);
         }
         const respostasFormatadas = await formatRespostas(respostas);
 
@@ -90,19 +90,19 @@ router.get('/api/comentario/respostas/:comentarioId', async (req: Request, res: 
 });
 
 //criar um comentario como resposta de outro comentario
-router.post('/api/comentario/responder/:id', userAuth, async (req: Request, res: Response) => {
+router.post('/api/comentario/responder', userAuth, async (req: Request, res: Response) => {
     try {
         const userId = req.session?.user ? await getIdUser(req.session.user) : null;
         if (!userId) {
             return res.status(401).send({ message: "Usuário não autenticado." });
         }
 
-        const { texto, usuarioId, resenhaId, respostaAId } = req.body;
-        if (!texto || !usuarioId || !resenhaId || !respostaAId) {
+        const { texto, resenhaId, respostaAId } = req.body;
+        if (!texto || !resenhaId || !respostaAId) {
             return res.status(400).send({ message: 'Faltam dados para criar a resposta ao comentário.' });
         }
 
-        const novaResposta = await responderComentario(texto, usuarioId, resenhaId, respostaAId);
+        const novaResposta = await responderComentario(texto, userId, resenhaId, respostaAId);
         const respostaFormatada = await formatResposta(novaResposta);
         res.status(201).json(respostaFormatada);
     } catch (error) {

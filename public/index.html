@@ -143,8 +143,8 @@
                         // Verifica se o campo 'conteudo' existe
                         const content = review.conteudo ? review.conteudo.substring(0, 180) : 'Conteúdo não disponível';
                         const title = review.titulo || 'Título não disponível';
-                        const author = review.usuario || 'Autor desconhecido';
-                        const date = review.dt_criacao ? new Date(review.dt_criacao).toLocaleDateString() : 'Data desconhecida';
+                        const author = review.nome_usuario || 'Autor desconhecido';
+                        const date = review.dt_criacao || 'Data desconhecida';
 
                         const reviewCard = document.createElement('div');
                         reviewCard.className = 'review-card bg-white shadow-xl rounded-2xl p-8 flex flex-col justify-between h-full';

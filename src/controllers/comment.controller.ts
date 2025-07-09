@@ -20,10 +20,12 @@ type  formattedResposta = {
 export const listarComentarios = async (id: number) => {
     try {
         const comentarios = await prisma.comentario.findMany({
-            where: { resenhaId: Number(id) },
+            where: { 
+                resenhaId: Number(id),
+                respostaAId: null // Apenas comentários principais, não respostas
+            },
             include: {
-                usuario: true, //detalhes do usuario
-                respostas: true //respostas ao comentario
+                usuario: true //detalhes do usuario
             }
         });
         return comentarios || [];
@@ -171,14 +173,10 @@ export const formatResposta = async (resposta: Comentario): Promise<formattedRes
         let formattedDate = dayjs(new Date(resposta.dt_criacao)).format('DD/MM/YYYY HH:mm');
         const user = await getNameUser(resposta.usuarioId);
 
-        if (!user) {
-            throw new Error("Usuário não encontrado");
-        }
-
         const formatted = {
             id: resposta.id,
             texto: resposta.texto,
-            nome_usuario: user,
+            nome_usuario: user || "Usuário desconhecido",
             dt_criacao: formattedDate,
             respostaAId: resposta.respostaAId,
         };
@@ -200,6 +198,14 @@ export const formatRespostas = async (respostas: Comentario[]): Promise<formatte
             formattedRespostas.push(formattedResposta);
         } catch (error) {
             console.error(`Erro ao formatar resposta ${resposta.id}:`, error);
+            // Adiciona uma resposta com dados básicos em caso de erro
+            formattedRespostas.push({
+                id: resposta.id,
+                texto: resposta.texto || "Texto não disponível",
+                nome_usuario: "Usuário desconhecido",
+                dt_criacao: "Data desconhecida",
+                respostaAId: resposta.respostaAId
+            });
         }
     }
 

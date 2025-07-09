@@ -106,22 +106,27 @@ const getAllReviews = async () => {
 
 const formatReview = async (review: Review) => {
     try {
-        const content = readFileSync(path.join(__dirname, '../../data/reviews', `${review.conteudo}.md`), 'utf-8');
+        let content = "Conteúdo não disponível";
+        
+        try {
+            const filePath = path.join(__dirname, '../../data/reviews', `${review.conteudo}.md`);
+            const fileContent = readFileSync(filePath, 'utf-8');
+            content = fileContent.trim() || "Conteúdo não disponível";
+        } catch (fileError) {
+            console.error(`Erro ao ler arquivo da resenha ${review.id}:`, fileError);
+            content = "Conteúdo não disponível";
+        }
 
         let formattedDate = dayjs(new Date(review.dt_criacao)).format('DD/MM/YYYY HH:mm');
         let formattedDateMod = dayjs(new Date(review.dt_ultima_edicao)).format('DD/MM/YYYY HH:mm');
 
         const user = await getNameUser(review.usuarioId);
 
-        if (!user) {
-            throw Error("deu ruim")
-        }
-
         const formatted = {
             "id": review.id,
             "titulo": review.titulo,
             "conteudo": content,
-            "nome_usuario": user,
+            "nome_usuario": user || "Autor desconhecido",
             "dt_criacao": formattedDate,
             "dt_ultima_edicao": formattedDateMod,
         };
@@ -143,12 +148,20 @@ const formatReviews = async (reviews: Review[]) => {
             formattedReviews.push(newReview);
         } catch (error) {
             console.error(`Erro ao formatar resenha ${review.id}:`, error);
+            // Adiciona uma resenha com dados básicos em caso de erro
+            formattedReviews.push({
+                id: review.id,
+                titulo: review.titulo || "Título não disponível",
+                conteudo: "Conteúdo não disponível",
+                nome_usuario: "Autor desconhecido",
+                dt_criacao: "Data desconhecida",
+                dt_ultima_edicao: "Data desconhecida"
+            });
         }
     }
 
     return formattedReviews;
-
-}
+};
 
 
 // procura uma resenha especifica de um usuario

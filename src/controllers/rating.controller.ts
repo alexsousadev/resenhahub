@@ -29,33 +29,61 @@ export const createRating = async (userId: number, resenhaId: number, nota: numb
             }
         });
 
+        let rating;
         if (existingRating) {
-            throw new Error('Usuário já avaliou esta resenha');
-        }
-
-        // Criar a avaliação
-        const rating = await prisma.avaliacao.create({
-            data: {
-                nota,
-                usuarioId: userId,
-                resenhaId: resenhaId
-            },
-            include: {
-                usuario: {
-                    select: {
-                        id: true,
-                        nome: true,
-                        email: true
+            // Se já existe, atualizar a avaliação
+            rating = await prisma.avaliacao.update({
+                where: {
+                    usuarioId_resenhaId: {
+                        usuarioId: userId,
+                        resenhaId: resenhaId
                     }
                 },
-                resenha: {
-                    select: {
-                        id: true,
-                        titulo: true
+                data: {
+                    nota,
+                    dt_criacao: new Date()
+                },
+                include: {
+                    usuario: {
+                        select: {
+                            id: true,
+                            nome: true,
+                            email: true
+                        }
+                    },
+                    resenha: {
+                        select: {
+                            id: true,
+                            titulo: true
+                        }
                     }
                 }
-            }
-        });
+            });
+        } else {
+            // Se não existe, criar nova avaliação
+            rating = await prisma.avaliacao.create({
+                data: {
+                    nota,
+                    usuarioId: userId,
+                    resenhaId: resenhaId
+                },
+                include: {
+                    usuario: {
+                        select: {
+                            id: true,
+                            nome: true,
+                            email: true
+                        }
+                    },
+                    resenha: {
+                        select: {
+                            id: true,
+                            titulo: true
+                        }
+                    }
+                }
+            });
+        }
 
         return rating;
     } catch (error) {

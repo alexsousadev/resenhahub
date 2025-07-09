@@ -6,30 +6,47 @@
     <title>Detalhes da Resenha</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100">
-    <article class="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 id="titulo" class="text-3xl font-semibold mb-4"></h2>
-        <p id="data" class="text-gray-500 text-sm mb-6"></p>
-            <p id="conteudo" class="text-lg text-gray-700 mb-6">
-                  </p>
-    </article>
+<body class="bg-gradient-to-br from-gray-100 to-blue-50 min-h-screen">
+    <div class="min-h-screen flex flex-col items-center py-8 px-2">
+        <div class="w-full max-w-3xl">
+            <!-- Card da Resenha -->
+            <article class="bg-white rounded-2xl shadow-lg p-8 mb-8 border border-gray-200">
+                <h1 id="titulo" class="text-4xl font-extrabold text-blue-900 mb-2"></h1>
+                <div class="flex items-center text-gray-500 text-sm mb-6">
+                    <span id="data"></span>
+                </div>
+                <div id="conteudo" class="prose prose-blue max-w-none text-lg text-gray-800 mb-2"></div>
+            </article>
 
-        <!-- Seção de comentários -->
-        <div id="comments-section" class="bg-white shadow-lg rounded-lg p-6 mt-8 border border-gray-200">
-            <h3 class="text-3xl font-bold text-gray-800 mb-4">Comentários</h3>
-            <div id="comments-list" class="space-y-4"></div>
-        </div>
+            <!-- Card de Avaliação -->
+            <section id="rating-section" class="bg-white rounded-2xl shadow-lg p-8 mb-8 border border-blue-100">
+                <div class="flex items-center mb-6">
+                    <h2 class="text-2xl font-bold text-blue-900">Avaliação da Resenha</h2>
+                </div>
+                <div id="rating-container"></div>
+            </section>
 
-        <!-- Formulário para adicionar comentários -->
-        <div class="bg-white shadow-lg rounded-lg p-6 mt-8 border border-gray-200">
-            <h3 class="text-3xl font-bold text-gray-800 mb-4">Deixe um comentário</h3>
-            <div id="comment-form-container">
-                <!-- O conteúdo será carregado dinamicamente baseado no status de autenticação -->
-            </div>
+            <!-- Card de Comentários -->
+            <section id="comments-section" class="bg-white rounded-2xl shadow-lg p-8 mb-8 border border-gray-100">
+                <div class="flex items-center mb-6">
+                    <span class="w-10 h-10 flex items-center justify-center rounded-full bg-blue-100 mr-3">
+                        <span class="text-blue-500 text-2xl">💬</span>
+                    </span>
+                    <h2 class="text-2xl font-bold text-blue-900">Comentários</h2>
+                </div>
+                <div id="comments-list" class="space-y-6"></div>
+            </section>
+
+            <!-- Card do Formulário de Comentário -->
+            <section class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 mb-8">
+                <div class="flex items-center mb-6">
+                    </span>
+                    <h2 class="text-2xl font-bold text-blue-900">Deixe um comentário</h2>
+                </div>
+                <div id="comment-form-container"></div>
+            </section>
         </div>
     </div>
-
-
     <script>
         async function fetchReview() {
             const reviewId = window.location.pathname.split("/").pop();
@@ -64,19 +81,80 @@
                 
                 if (comentarios && comentarios.length > 0) {
                     comentarios.forEach(comentario => {
+                        const replyButton = window.isAuthenticated ? 
+                            `<div class="mt-4">
+                                <button onclick="showReplyForm(${comentario.id})" class="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+                                    </svg>
+                                    Responder
+                                </button>
+                            </div>` : '';
+                        
+                        const replyForm = window.isAuthenticated ? 
+                            `<div id="reply-form-${comentario.id}" class="hidden mt-4 p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500">
+                                <form onsubmit="submitReply(event, ${comentario.id})" class="space-y-3">
+                                    <textarea 
+                                        id="reply-text-${comentario.id}" 
+                                        class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none" 
+                                        rows="3" 
+                                        placeholder="Escreva sua resposta..."
+                                        required
+                                    ></textarea>
+                                    <div class="flex space-x-2">
+                                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200 text-sm font-medium">
+                                            Enviar Resposta
+                                        </button>
+                                        <button type="button" onclick="hideReplyForm(${comentario.id})" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition duration-200 text-sm font-medium">
+                                            Cancelar
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>` : '';
+                        
                         commentsHTML += `
-                            <div class="bg-gray-100 rounded-lg p-4 shadow mb-4">
-                                <p class="font-semibold text-gray-700">${comentario.nome_usuario}</p>
-                                <p class="text-gray-600">${comentario.texto}</p>
-                                <p class="text-sm text-gray-500 mt-2">Publicado em ${comentario.dt_criacao}</p>
+                            <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 hover:shadow-md transition-shadow" data-comment-id="${comentario.id}">
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <span class="text-blue-600 font-semibold text-sm">${comentario.nome_usuario.charAt(0).toUpperCase()}</span>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <h4 class="font-semibold text-gray-900">${comentario.nome_usuario}</h4>
+                                            <span class="text-gray-400">•</span>
+                                            <span class="text-sm text-gray-500">${comentario.dt_criacao}</span>
+                                        </div>
+                                        <p class="text-gray-700 leading-relaxed">${comentario.texto}</p>
+                                        ${replyButton}
+                                        ${replyForm}
+                                        <div id="replies-${comentario.id}" class="mt-4 space-y-3">
+                                            <!-- Respostas serão carregadas aqui -->
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         `;
                     });
                 } else {
-                    commentsHTML = '<p class="text-gray-500 text-center py-4">Nenhum comentário ainda. Seja o primeiro a comentar!</p>';
+                    commentsHTML = `
+                        <div class="text-center py-12">
+                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <span class="text-gray-400 text-2xl">💬</span>
+                            </div>
+                            <h4 class="text-lg font-semibold text-gray-800 mb-2">Nenhum comentário ainda</h4>
+                            <p class="text-gray-600">Seja o primeiro a comentar sobre esta resenha!</p>
+                        </div>
+                    `;
                 }
 
                 document.getElementById('comments-list').innerHTML = commentsHTML;
+
+                // Carrega as respostas de cada comentário
+                if (comentarios && comentarios.length > 0) {
+                    comentarios.forEach(comentario => {
+                        loadReplies(comentario.id);
+                    });
+                }
 
             } catch (error) {
                 console.error('Erro ao carregar os comentários:', error);
@@ -88,6 +166,7 @@
         window.onload = function() {
             fetchReview();
             checkAuthAndLoadCommentForm();
+            checkAuthAndLoadRatingForm();
         };
 
         // Função para verificar autenticação e carregar formulário de comentários
@@ -106,10 +185,20 @@
                     container.innerHTML = `
                         <form id="comment-form" class="space-y-4">
                             <div>
-                                <label for="comment" class="block text-sm font-medium text-gray-700">Comentário</label>
-                                <textarea id="comment" name="comment" rows="4" class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Escreva seu comentário"></textarea>
+                                <label for="comment" class="block text-sm font-medium text-gray-700 mb-2">Seu comentário</label>
+                                <textarea 
+                                    id="comment" 
+                                    name="comment" 
+                                    rows="4" 
+                                    class="w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none transition-colors" 
+                                    placeholder="Compartilhe sua opinião sobre esta resenha..."
+                                ></textarea>
                             </div>
-                            <button type="submit" class="bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-200">Enviar Comentário</button>
+                            <div class="flex justify-end">
+                                <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200 font-medium">
+                                    Enviar Comentário
+                                </button>
+                            </div>
                         </form>
                     `;
                     
@@ -118,6 +207,9 @@
                     if (commentForm) {
                         commentForm.addEventListener('submit', handleCommentSubmit);
                     }
+                    
+                    // Armazena o status de autenticação globalmente
+                    window.isAuthenticated = true;
                 } else {
                     // Usuário não está logado - mostrar mensagem para fazer login
                     container.innerHTML = `
@@ -128,6 +220,9 @@
                             </a>
                         </div>
                     `;
+                    
+                    // Armazena o status de autenticação globalmente
+                    window.isAuthenticated = false;
                 }
             } catch (error) {
                 console.error('Erro ao verificar autenticação:', error);
@@ -140,6 +235,9 @@
                         </a>
                     </div>
                 `;
+                
+                // Armazena o status de autenticação globalmente
+                window.isAuthenticated = false;
             }
         }
 
@@ -188,6 +286,425 @@
             } catch (error) {
                 console.error('Erro ao enviar comentário:', error);
                 alert('Erro ao enviar comentário. Tente novamente.');
+            }
+        }
+
+        // Função para mostrar o formulário de resposta
+        function showReplyForm(commentId) {
+            const replyForm = document.getElementById(`reply-form-${commentId}`);
+            if (replyForm) {
+                replyForm.classList.remove('hidden');
+            }
+        }
+
+        // Função para esconder o formulário de resposta
+        function hideReplyForm(commentId) {
+            const replyForm = document.getElementById(`reply-form-${commentId}`);
+            if (replyForm) {
+                replyForm.classList.add('hidden');
+                // Limpa o texto da resposta
+                const replyText = document.getElementById(`reply-text-${commentId}`);
+                if (replyText) {
+                    replyText.value = '';
+                }
+            }
+        }
+
+        // Função para enviar uma resposta
+        async function submitReply(event, commentId) {
+            event.preventDefault();
+            
+            const reviewId = window.location.pathname.split("/").pop();
+            const replyText = document.getElementById(`reply-text-${commentId}`);
+            const texto = replyText.value.trim();
+            
+            if (!texto) {
+                alert('Por favor, escreva uma resposta.');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/comentario/responder', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ 
+                        texto, 
+                        resenhaId: parseInt(reviewId),
+                        respostaAId: commentId
+                    })
+                });
+                
+                if (response.ok) {
+                    // Limpa o formulário e esconde
+                    replyText.value = '';
+                    hideReplyForm(commentId);
+                    
+                    // Recarrega os comentários para mostrar a nova resposta
+                    fetchComments(reviewId);
+                    
+                    alert('Resposta enviada com sucesso!');
+                } else if (response.status === 401) {
+                    alert('Você precisa estar logado para responder comentários.');
+                    window.location.href = '/login';
+                } else {
+                    const error = await response.json();
+                    alert(`Erro ao enviar resposta: ${error.message}`);
+                }
+            } catch (error) {
+                console.error('Erro ao enviar resposta:', error);
+                alert('Erro ao enviar resposta. Tente novamente.');
+            }
+        }
+
+        // Função para carregar respostas de um comentário
+        async function loadReplies(commentId) {
+            try {
+                const response = await fetch(`/api/comentario/respostas/${commentId}`);
+                if (response.ok) {
+                    const respostas = await response.json();
+                    const repliesContainer = document.getElementById(`replies-${commentId}`);
+                    
+                    if (respostas && respostas.length > 0) {
+                        let repliesHTML = '';
+                        respostas.forEach(resposta => {
+                            repliesHTML += `
+                                <div class="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                            <span class="text-green-600 font-semibold text-xs">${resposta.nome_usuario.charAt(0).toUpperCase()}</span>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center space-x-2 mb-1">
+                                                <h5 class="font-medium text-gray-900 text-sm">${resposta.nome_usuario}</h5>
+                                                <span class="text-gray-400 text-xs">•</span>
+                                                <span class="text-xs text-gray-500">${resposta.dt_criacao}</span>
+                                            </div>
+                                            <p class="text-gray-700 text-sm leading-relaxed">${resposta.texto}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        repliesContainer.innerHTML = repliesHTML;
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao carregar respostas:', error);
+            }
+        }
+
+        // Função para verificar autenticação e carregar formulário de avaliação
+        async function checkAuthAndLoadRatingForm() {
+            try {
+                const response = await fetch('/auth/status', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                const authData = await response.json();
+                const container = document.getElementById('rating-container');
+                const reviewId = window.location.pathname.split("/").pop();
+                
+                if (authData.authenticated) {
+                    // Usuário está logado - carregar avaliação existente ou formulário
+                    loadUserRating(reviewId);
+                } else {
+                    // Usuário não está logado - mostrar mensagem para fazer login
+                    container.innerHTML = `
+                        <div class="text-center py-8">
+                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <span class="text-gray-400 text-2xl">🔒</span>
+                            </div>
+                            <h4 class="text-lg font-semibold text-gray-800 mb-2">Login necessário</h4>
+                            <p class="text-gray-600 mb-6">Para avaliar esta resenha, você precisa estar logado.</p>
+                            <a href="/login" class="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200 font-medium">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                                </svg>
+                                Fazer Login
+                            </a>
+                        </div>
+                    `;
+                }
+                
+                // Carregar estatísticas de avaliação (público)
+                loadRatingStats(reviewId);
+            } catch (error) {
+                console.error('Erro ao verificar autenticação para avaliação:', error);
+                const container = document.getElementById('rating-container');
+                container.innerHTML = `
+                    <div class="text-center py-6">
+                        <p class="text-gray-600 mb-4">Para avaliar esta resenha, você precisa estar logado.</p>
+                        <a href="/login" class="bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-200">
+                            Fazer Login
+                        </a>
+                    </div>
+                `;
+            }
+        }
+
+        // Função para carregar a avaliação do usuário logado
+        async function loadUserRating(reviewId) {
+            try {
+                const response = await fetch(`/api/avaliacao/${reviewId}`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                const container = document.getElementById('rating-container');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const rating = data.rating;
+                    // Usuário já avaliou - mostrar avaliação atual com opção de editar
+                    container.innerHTML = `
+                        <div class="bg-blue-50 rounded-lg p-6 border border-blue-200">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="text-lg font-semibold text-gray-800">Sua avaliação</h4>
+                                <span class="text-sm text-gray-500">${rating.dt_criacao}</span>
+                            </div>
+                            <div class="flex items-center space-x-4 mb-4">
+                                <div class="flex space-x-1">
+                                    ${generateStars(rating.nota)}
+                                </div>
+                                <span class="text-2xl font-bold text-gray-800">${rating.nota}/10</span>
+                            </div>
+                            <button onclick="showRatingForm(${reviewId}, ${rating.nota})" class="inline-flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200 font-medium">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                Editar Avaliação
+                            </button>
+                        </div>
+                        <div id="rating-form-container" class="hidden mt-6">
+                            <!-- Formulário de avaliação será carregado aqui -->
+                        </div>
+                    `;
+                } else if (response.status === 404) {
+                    // Usuário ainda não avaliou - mostrar formulário
+                    showRatingForm(reviewId);
+                } else {
+                    throw new Error('Erro ao carregar avaliação');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar avaliação do usuário:', error);
+                const container = document.getElementById('rating-container');
+                container.innerHTML = `
+                    <div class="text-center py-6">
+                        <p class="text-red-500">Erro ao carregar avaliação. Tente novamente.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Função para carregar estatísticas de avaliação
+        async function loadRatingStats(reviewId) {
+            try {
+                const response = await fetch(`/api/resenha/${reviewId}/avaliacoes`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const statsContainer = document.createElement('div');
+                    statsContainer.className = 'mt-6 p-4 bg-gray-50 rounded-lg';
+                    
+                    if (data.averageRating && data.averageRating.totalAvaliacoes > 0) {
+                        const average = data.averageRating.media;
+                        const total = data.averageRating.totalAvaliacoes;
+                        
+                        statsContainer.innerHTML = `
+                            <h4 class="font-semibold text-gray-800 mb-2">Estatísticas da Avaliação</h4>
+                            <div class="flex items-center space-x-4">
+                                <div class="flex items-center space-x-2">
+                                    <div class="flex space-x-1">
+                                        ${generateStars(average)}
+                                    </div>
+                                    <span class="text-lg font-semibold text-gray-800">${average.toFixed(1)}/10</span>
+                                </div>
+                                <span class="text-gray-600">(${total} avaliação${total > 1 ? 'ões' : ''})</span>
+                            </div>
+                        `;
+                    } else {
+                        statsContainer.innerHTML = `
+                            <p class="text-gray-600">Nenhuma avaliação ainda. Seja o primeiro a avaliar!</p>
+                        `;
+                    }
+                    
+                    const container = document.getElementById('rating-container');
+                    container.appendChild(statsContainer);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar estatísticas de avaliação:', error);
+            }
+        }
+
+        // Função para gerar estrelas baseadas na nota
+        function generateStars(nota) {
+            const fullStars = Math.floor(nota);
+            const hasHalfStar = nota % 1 >= 0.5;
+            const emptyStars = 10 - fullStars - (hasHalfStar ? 1 : 0);
+            
+            let starsHTML = '';
+            
+            // Estrelas cheias
+            for (let i = 0; i < fullStars; i++) {
+                starsHTML += '<span class="text-yellow-400 text-xl">★</span>';
+            }
+            
+            // Meia estrela
+            if (hasHalfStar) {
+                starsHTML += '<span class="text-yellow-400 text-xl">☆</span>';
+            }
+            
+            // Estrelas vazias
+            for (let i = 0; i < emptyStars; i++) {
+                starsHTML += '<span class="text-gray-300 text-xl">☆</span>';
+            }
+            
+            return starsHTML;
+        }
+
+        // Função para mostrar formulário de avaliação
+        function showRatingForm(reviewId, currentRating = null) {
+            const container = document.getElementById('rating-form-container');
+            if (!container) {
+                // Se não existe container, criar um novo
+                const ratingContainer = document.getElementById('rating-container');
+                ratingContainer.innerHTML = `
+                    <div id="rating-form-container">
+                        <!-- Formulário será carregado aqui -->
+                    </div>
+                `;
+            }
+            
+            const formContainer = document.getElementById('rating-form-container');
+            const initialRating = currentRating || 5;
+            
+            formContainer.innerHTML = `
+                <form onsubmit="submitRating(event, ${reviewId})" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Sua avaliação:</label>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex space-x-1" id="star-rating">
+                                ${generateInteractiveStars(initialRating)}
+                            </div>
+                            <span class="text-lg font-semibold text-gray-800" id="rating-display">${initialRating}/10</span>
+                        </div>
+                        <input type="hidden" id="rating-value" name="rating" value="${initialRating}">
+                    </div>
+                    <div class="flex space-x-2">
+                        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-200">
+                            ${currentRating ? 'Atualizar Avaliação' : 'Enviar Avaliação'}
+                        </button>
+                        ${currentRating ? `<button type="button" onclick="cancelRatingEdit()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition duration-200">
+                            Cancelar
+                        </button>` : ''}
+                    </div>
+                </form>
+            `;
+            
+            formContainer.classList.remove('hidden');
+            
+            // Adicionar event listeners para as estrelas interativas
+            setupInteractiveStars();
+        }
+
+        // Função para gerar estrelas interativas
+        function generateInteractiveStars(rating) {
+            let starsHTML = '';
+            for (let i = 1; i <= 10; i++) {
+                const starClass = i <= rating ? 'text-yellow-400' : 'text-gray-300';
+                starsHTML += `<span class="${starClass} text-xl cursor-pointer hover:text-yellow-400 transition-colors" data-rating="${i}">★</span>`;
+            }
+            return starsHTML;
+        }
+
+        // Função para configurar estrelas interativas
+        function setupInteractiveStars() {
+            const stars = document.querySelectorAll('#star-rating span');
+            const ratingDisplay = document.getElementById('rating-display');
+            const ratingInput = document.getElementById('rating-value');
+            
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const rating = parseInt(this.dataset.rating);
+                    updateStarDisplay(rating);
+                    ratingDisplay.textContent = `${rating}/10`;
+                    ratingInput.value = rating;
+                });
+                
+                star.addEventListener('mouseenter', function() {
+                    const rating = parseInt(this.dataset.rating);
+                    updateStarDisplay(rating);
+                });
+                
+                star.addEventListener('mouseleave', function() {
+                    const currentRating = parseInt(ratingInput.value);
+                    updateStarDisplay(currentRating);
+                });
+            });
+        }
+
+        // Função para atualizar exibição das estrelas
+        function updateStarDisplay(rating) {
+            const stars = document.querySelectorAll('#star-rating span');
+            stars.forEach((star, index) => {
+                const starRating = index + 1;
+                if (starRating <= rating) {
+                    star.className = 'text-yellow-400 text-xl cursor-pointer hover:text-yellow-400 transition-colors';
+                } else {
+                    star.className = 'text-gray-300 text-xl cursor-pointer hover:text-yellow-400 transition-colors';
+                }
+            });
+        }
+
+        // Função para cancelar edição de avaliação
+        function cancelRatingEdit() {
+            const reviewId = window.location.pathname.split("/").pop();
+            loadUserRating(reviewId);
+        }
+
+        // Função para enviar avaliação
+        async function submitRating(event, reviewId) {
+            event.preventDefault();
+            
+            const ratingInput = document.getElementById('rating-value');
+            const nota = parseFloat(ratingInput.value);
+            
+            if (!nota || nota < 0 || nota > 10) {
+                alert('Por favor, selecione uma avaliação válida (0-10).');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/avaliacao', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ 
+                        resenhaId: parseInt(reviewId),
+                        nota: nota
+                    })
+                });
+                
+                if (response.ok) {
+                    alert('Avaliação enviada com sucesso!');
+                    // Recarregar avaliação e estatísticas
+                    loadUserRating(reviewId);
+                    loadRatingStats(reviewId);
+                } else if (response.status === 401) {
+                    alert('Você precisa estar logado para avaliar.');
+                    window.location.href = '/login';
+                } else {
+                    const error = await response.json();
+                    alert(`Erro ao enviar avaliação: ${error.error || error.message}`);
+                }
+            } catch (error) {
+                console.error('Erro ao enviar avaliação:', error);
+                alert('Erro ao enviar avaliação. Tente novamente.');
             }
         }
     </script>
