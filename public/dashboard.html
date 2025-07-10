@@ -62,14 +62,6 @@
                             <span class="text-lg">Adicionar Nova Resenha</span>
                         </a>
                     </li>
-                    <li class="text-gray-300 hover:bg-gray-700 hover:text-white">
-                        <a href="#" class="flex items-center p-4">
-                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
-                            </svg>
-                            <span class="text-lg">Livros Salvos</span>
-                        </a>
-                    </li>
                 </ul>
                 <button class="text-white bg-red-600 hover:bg-red-700 px-4 py-2 rounded mt-auto m-6">
                     <a href="/logout">Sair</a>
@@ -110,6 +102,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadReviews();
             setupMobileMenu();
+            setupLogout();
         });
 
         function setupMobileMenu() {
@@ -122,6 +115,32 @@
                 sidebar.classList.toggle('inset-0');
                 sidebar.classList.toggle('z-50');
             });
+        }
+
+        // Função para fazer logout
+        async function performLogout() {
+            try {
+                const response = await fetch('/logout');
+                if (response.ok) {
+                    // Forçar atualização da página após logout
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error('Erro ao fazer logout:', error);
+                // Em caso de erro, ainda tentar recarregar a página
+                window.location.reload();
+            }
+        }
+
+        // Configurar o botão de logout
+        function setupLogout() {
+            const logoutButton = document.querySelector('a[href="/logout"]');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    performLogout();
+                });
+            }
         }
 
         async function loadReviews() {

@@ -3,43 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escrever Resenha</title>
+    <title>Criar Resenha - ResenhaHub</title>
+    <link rel="stylesheet" href="./dist/output.css">
+    <link rel="icon" href="./img/favicon.png" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.5.1/tinymce.min.js" referrerpolicy="origin"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .message {
-            margin: 20px auto; /* Espaço acima e centraliza horizontalmente */
+            margin: 20px auto;
             z-index: 1000;
-            width: 400px; /* Largura das mensagens */
-            text-align: center; /* Centraliza o texto */
-            position: fixed; /* Fixa a posição na tela */
-            top: 20px; /* Define a distância do topo da tela */
-            left: 50%; /* Centraliza horizontalmente */
-            transform: translateX(-50%); /* Ajuste para centralização perfeita */
+            width: 400px;
+            text-align: center;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen p-8">
-    <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md">
-        <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Escrever Resenha</h1>
-        
-        <form id="reviewForm" action="/resenha" method="POST">
-            <div class="mb-4">
-                <label for="title" class="block text-sm font-medium text-gray-700 mb-2">Título da Resenha</label>
-                <input type="text" id="title" name="title" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-            </div>
-            
-            <div class="mb-4">
-                <label for="content" class="block text-sm font-medium text-gray-700 mb-2">Conteúdo da Resenha</label>
-                <textarea id="content" name="content"></textarea>
-            </div>
-            
-            <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-300">Criar Resenha</button>
-        </form>
+<body class="bg-white min-h-screen font-['Inter']">
+    <!-- Navbar moderno com fundo branco -->
+    <header class="bg-white shadow-lg border-b border-gray-100 sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <!-- Logo com efeito sutil -->
+                <div class="flex items-center space-x-3">
+                    <a href="/" class="text-2xl font-bold text-gray-800 hover:text-orange-500 transition-colors duration-300">
+                        ResenhaHub
+                    </a>
+                </div>
+                
+                <!-- Botões de autenticação -->
+                <div id="auth-buttons" class="flex items-center space-x-4">
+                    <a href="#" class="text-gray-600 hover:text-orange-500 font-medium transition-colors duration-300 flex items-center space-x-2">
+                        <i class="fas fa-book-open text-orange-400"></i>
+                        <span>Resenhas</span>
+                    </a>
+                    <a href="/login" class="px-6 py-2.5 text-gray-600 hover:text-orange-500 font-medium transition-colors duration-300">
+                        Entrar
+                    </a>
+                    <a href="/cadastro" class="px-6 py-2.5 bg-orange-500 text-white rounded-full font-semibold hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        Cadastrar
+                    </a>
+                </div>
 
-        <!-- Mensagens de Alerta -->
-        <div id="alertContainer" class="mt-4"></div>
-    </div>
+                <!-- Botões quando logado -->
+                <div id="logout-section" class="hidden flex items-center space-x-3">
+                    <a href="/dashboard" class="px-4 py-2.5 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 shadow-md flex items-center space-x-2">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="/logout" class="px-4 py-2.5 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition-all duration-300 transform hover:scale-105 shadow-md flex items-center space-x-2">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Sair</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Conteúdo principal -->
+    <main class="flex items-center justify-center min-h-screen py-8 relative overflow-hidden bg-gradient-to-br from-orange-50 to-white">
+        <!-- Background com elementos decorativos sutis -->
+        <div class="absolute inset-0">
+            <div class="absolute top-20 left-10 w-72 h-72 bg-orange-100 rounded-full blur-3xl opacity-30"></div>
+            <div class="absolute top-40 right-20 w-96 h-96 bg-orange-200 rounded-full blur-3xl opacity-20"></div>
+            <div class="absolute bottom-20 left-1/4 w-80 h-80 bg-orange-100 rounded-full blur-3xl opacity-30"></div>
+        </div>
+
+        <div class="w-full max-w-4xl relative z-10">
+            <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 hover:shadow-2xl transition-all duration-300">
+                <!-- Header do formulário -->
+                <div class="text-center mb-8">
+                    <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-edit text-2xl text-orange-500"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Criar Nova Resenha</h2>
+                    <p class="text-gray-600">Compartilhe sua experiência e opinião</p>
+                </div>
+
+                <form id="reviewForm" action="/resenha" method="POST" class="space-y-6">
+                    <div>
+                        <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-heading text-orange-400 mr-2"></i>Título da Resenha
+                        </label>
+                        <input 
+                            type="text" 
+                            id="title" 
+                            name="title" 
+                            class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 bg-gray-50 focus:bg-white" 
+                            placeholder="Digite o título da sua resenha"
+                            required
+                        >
+                    </div>
+                    
+                    <div>
+                        <label for="category" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-tags text-orange-400 mr-2"></i>Categoria
+                        </label>
+                        <select id="category" name="category" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 bg-gray-50 focus:bg-white" required>
+                            <option value="">Selecione uma categoria</option>
+                            <option value="livro">Livro</option>
+                            <option value="filme">Filme</option>
+                            <option value="serie">Série</option>
+                            <option value="anime">Anime</option>
+                            <option value="manga">Mangá</option>
+                            <option value="documentario">Documentário</option>
+                            <option value="podcast">Podcast</option>
+                            <option value="jogo">Jogo</option>
+                            <option value="musica">Música</option>
+                            <option value="teatro">Teatro</option>
+                            <option value="outro">Outro</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="content" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-align-left text-orange-400 mr-2"></i>Conteúdo da Resenha
+                        </label>
+                        <textarea id="content" name="content"></textarea>
+                    </div>
+                    
+                    <button 
+                        type="submit" 
+                        class="w-full bg-orange-500 text-white py-3 px-6 rounded-xl font-semibold hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2"
+                    >
+                        <i class="fas fa-paper-plane"></i>
+                        <span>Publicar Resenha</span>
+                    </button>
+                </form>
+
+                <!-- Mensagens de Alerta -->
+                <div id="alertContainer" class="mt-6"></div>
+
+                <div class="mt-6 pt-6 border-t border-gray-100">
+                    <a href="/" class="flex items-center justify-center text-gray-500 hover:text-orange-500 transition-colors duration-300">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Voltar para o início
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
 
     <script>
         tinymce.init({
@@ -61,17 +167,18 @@
             e.preventDefault();
             
             const title = document.getElementById('title').value;
+            const category = document.getElementById('category').value;
             const content = tinymce.get('content').getContent();
             const alertContainer = document.getElementById('alertContainer');
             alertContainer.innerHTML = ''; // Limpa as mensagens anteriores
             
-            if (title && content) {
+            if (title && category && content) {
                 fetch('/api/resenha', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ title, content }),
+                    body: JSON.stringify({ title, category, content }),
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -98,10 +205,62 @@
                 // Mensagem de alerta para campos não preenchidos
                 const warningMessage = document.createElement('div');
                 warningMessage.className = 'bg-yellow-200 border border-yellow-400 text-yellow-700 p-4 rounded-md message';
-                warningMessage.textContent = 'Por favor, preencha todos os campos.';
+                warningMessage.textContent = 'Por favor, preencha todos os campos (título, categoria e conteúdo).';
                 alertContainer.appendChild(warningMessage);
             }
         });
+
+        // Função para verificar se o usuário está autenticado
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch('/auth/status');
+                const data = await response.json();
+                
+                const authButtons = document.getElementById('auth-buttons');
+                const logoutSection = document.getElementById('logout-section');
+                
+                if (data.authenticated) {
+                    authButtons.classList.add('hidden');
+                    logoutSection.classList.remove('hidden');
+                } else {
+                    authButtons.classList.remove('hidden');
+                    logoutSection.classList.add('hidden');
+                }
+            } catch (error) {
+                console.error('Erro ao verificar status de autenticação:', error);
+                const authButtons = document.getElementById('auth-buttons');
+                const logoutSection = document.getElementById('logout-section');
+                authButtons.classList.remove('hidden');
+                logoutSection.classList.add('hidden');
+            }
+        }
+
+        // Função para fazer logout
+        async function performLogout() {
+            try {
+                const response = await fetch('/logout');
+                if (response.ok) {
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error('Erro ao fazer logout:', error);
+                window.location.reload();
+            }
+        }
+
+        // Adicionar event listener para o botão de logout
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoutButton = document.querySelector('a[href="/logout"]');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    performLogout();
+                });
+            }
+        });
+
+        // Verificar status de autenticação quando a página carregar
+        window.onload = checkAuthStatus;
     </script>
 </body>
 </html>

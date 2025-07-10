@@ -20,10 +20,14 @@ const JWT_KEY = process.env.JWT_SECRET_KEY || 'secret dog';
 app.use(session({
     secret: JWT_KEY,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
-        maxAge: 1000 * 60 * 60 * 24 * 30
-    }
+        maxAge: 1000 * 60 * 60 * 24 * 30, // 30 dias
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // true em produção
+        sameSite: 'lax'
+    },
+    name: 'connect.sid'
 }));
 
 

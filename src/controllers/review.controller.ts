@@ -21,7 +21,8 @@ type formattedRev = {
     conteudo: string,
     nome_usuario: string,
     dt_criacao: string,
-    dt_ultima_edicao: string
+    dt_ultima_edicao: string,
+    categorias: string[]
 }
 
 // pegando uma resenha especifica usando ID
@@ -66,7 +67,7 @@ const getAllReviewOfUser = async (id: number) => {
 
 
 // criando nova resenha de um usuario
-const createReview = async (titulo: string, conteudo: string, IdUsuario: number) => {
+const createReview = async (titulo: string, conteudo: string, categoria: string, IdUsuario: number) => {
 
     // gerando o arquivo .md do post
     const fileName = `${uuidv4()}`;
@@ -75,11 +76,31 @@ const createReview = async (titulo: string, conteudo: string, IdUsuario: number)
     writeFileSync(filePath, conteudo)
 
     try {
+        // Primeiro, verificar se a categoria existe, se não, criar
+        let categoriaObj = await prisma.categoria.findUnique({
+            where: { nome: categoria }
+        });
+
+        if (!categoriaObj) {
+            categoriaObj = await prisma.categoria.create({
+                data: {
+                    nome: categoria,
+                    descricao: `Categoria para ${categoria}`
+                }
+            });
+        }
+
+        // Criar a resenha e conectar com a categoria
         await prisma.resenha.create({
             data: {
                 titulo: titulo,
                 conteudo: fileName,
-                usuarioId: IdUsuario
+                usuarioId: IdUsuario,
+                categorias: {
+                    connect: {
+                        id: categoriaObj.id
+                    }
+                }
             },
         });
     } catch (error) {
@@ -122,6 +143,16 @@ const formatReview = async (review: Review) => {
 
         const user = await getNameUser(review.usuarioId);
 
+        // Buscar categorias da resenha
+        const resenhaComCategorias = await prisma.resenha.findUnique({
+            where: { id: review.id },
+            include: {
+                categorias: true
+            }
+        });
+
+        const categorias = resenhaComCategorias?.categorias.map(cat => cat.nome) || [];
+
         const formatted = {
             "id": review.id,
             "titulo": review.titulo,
@@ -129,6 +160,7 @@ const formatReview = async (review: Review) => {
             "nome_usuario": user || "Autor desconhecido",
             "dt_criacao": formattedDate,
             "dt_ultima_edicao": formattedDateMod,
+            "categorias": categorias
         };
 
         return formatted;
@@ -155,7 +187,8 @@ const formatReviews = async (reviews: Review[]) => {
                 conteudo: "Conteúdo não disponível",
                 nome_usuario: "Autor desconhecido",
                 dt_criacao: "Data desconhecida",
-                dt_ultima_edicao: "Data desconhecida"
+                dt_ultima_edicao: "Data desconhecida",
+                categorias: []
             });
         }
     }

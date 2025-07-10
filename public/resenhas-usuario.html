@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minhas Resenhas</title>
+    <title>Minhas Resenhas - ResenhaHub</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .alert {
             z-index: 1000;
@@ -19,16 +21,106 @@
         }
     </style>
 </head>
-<body class="bg-gray-100">
-    <div class="container mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold mb-6">Minhas Resenhas</h1>
-        <div id="reviews-container" class="space-y-4"></div>
-    </div>
+<body class="bg-white min-h-screen font-['Inter']">
+    <!-- Navbar moderno com fundo branco -->
+    <header class="bg-white shadow-lg border-b border-gray-100 sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <!-- Logo com efeito sutil -->
+                <div class="flex items-center space-x-3">
+                    <a href="/" class="text-2xl font-bold text-gray-800 hover:text-orange-500 transition-colors duration-300">
+                        ResenhaHub
+                    </a>
+                </div>
+                
+                <!-- Botões de autenticação -->
+                <div id="auth-buttons" class="flex items-center space-x-4">
+                    <a href="/resenhas" class="text-gray-600 hover:text-orange-500 font-medium transition-colors duration-300 flex items-center space-x-2">
+                        <i class="fas fa-book-open text-orange-400"></i>
+                        <span>Resenhas</span>
+                    </a>
+                    <a href="/login" class="px-6 py-2.5 text-gray-600 hover:text-orange-500 font-medium transition-colors duration-300">
+                        Entrar
+                    </a>
+                    <a href="/cadastro" class="px-6 py-2.5 bg-orange-500 text-white rounded-full font-semibold hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        Cadastrar
+                    </a>
+                </div>
+
+                <!-- Botões quando logado -->
+                <div id="logout-section" class="hidden flex items-center space-x-3">
+                    <a href="/dashboard" class="px-4 py-2.5 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 shadow-md flex items-center space-x-2">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="/criar-resenha" class="px-4 py-2.5 bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 shadow-md flex items-center space-x-2">
+                        <i class="fas fa-plus"></i>
+                        <span>Nova Resenha</span>
+                    </a>
+                    <a href="/logout" class="px-4 py-2.5 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition-all duration-300 transform hover:scale-105 shadow-md flex items-center space-x-2">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Sair</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Conteúdo principal -->
+    <main class="min-h-screen py-8 relative overflow-hidden bg-gradient-to-br from-orange-50 to-white">
+        <!-- Background com elementos decorativos sutis -->
+        <div class="absolute inset-0">
+            <div class="absolute top-20 left-10 w-72 h-72 bg-orange-100 rounded-full blur-3xl opacity-30"></div>
+            <div class="absolute top-40 right-20 w-96 h-96 bg-orange-200 rounded-full blur-3xl opacity-20"></div>
+            <div class="absolute bottom-20 left-1/4 w-80 h-80 bg-orange-100 rounded-full blur-3xl opacity-30"></div>
+        </div>
+
+        <div class="container mx-auto px-6 relative z-10">
+            <!-- Header da página -->
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-book text-2xl text-orange-500"></i>
+                </div>
+                <h1 class="text-4xl font-bold text-gray-800 mb-2">Minhas Resenhas</h1>
+                <p class="text-gray-600">Gerencie suas resenhas publicadas</p>
+            </div>
+
+            <!-- Container das resenhas -->
+            <div id="reviews-container" class="max-w-4xl mx-auto space-y-6"></div>
+        </div>
+    </main>
 
     <script>
         let reviews = []; // Armazena as resenhas globalmente
 
-        document.addEventListener('DOMContentLoaded', loadReviews);
+        // Função para verificar se o usuário está autenticado
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch('/auth/status');
+                const data = await response.json();
+                
+                const authButtons = document.getElementById('auth-buttons');
+                const logoutSection = document.getElementById('logout-section');
+                
+                if (data.authenticated) {
+                    authButtons.classList.add('hidden');
+                    logoutSection.classList.remove('hidden');
+                } else {
+                    authButtons.classList.remove('hidden');
+                    logoutSection.classList.add('hidden');
+                    // Redirecionar para login se não estiver autenticado
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('Erro ao verificar status de autenticação:', error);
+                window.location.href = '/login';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+            loadReviews();
+        });
 
         async function loadReviews() {
             try {
@@ -46,7 +138,13 @@
             } catch (error) {
                 console.error('Erro:', error);
                 document.getElementById('reviews-container').innerHTML = `
-                    <p class="text-red-500">Erro ao carregar as resenhas. Por favor, tente novamente mais tarde.</p>
+                    <div class="text-center py-12">
+                        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-red-500 text-2xl">⚠️</span>
+                        </div>
+                        <h4 class="text-lg font-semibold text-gray-800 mb-2">Erro ao carregar resenhas</h4>
+                        <p class="text-red-500">Por favor, tente novamente mais tarde.</p>
+                    </div>
                 `;
             }
         }
@@ -54,24 +152,67 @@
         function displayReviews() {
             const container = document.getElementById('reviews-container');
             if (reviews.length === 0) {
-                container.innerHTML = '<p class="text-gray-500">Você ainda não tem resenhas.</p>';
+                container.innerHTML = `
+                    <div class="text-center py-12">
+                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-gray-400 text-2xl">📝</span>
+                        </div>
+                        <h4 class="text-lg font-semibold text-gray-800 mb-2">Nenhuma resenha encontrada</h4>
+                        <p class="text-gray-600 mb-6">Você ainda não criou nenhuma resenha.</p>
+                        <a href="/criar-resenha" class="inline-flex items-center bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition duration-200 font-medium">
+                            <i class="fas fa-plus mr-2"></i>
+                            Criar Primeira Resenha
+                        </a>
+                    </div>
+                `;
                 return;
             }
 
             const reviewsHTML = reviews.map(review => `
-                <div class="bg-white shadow rounded-lg p-6" data-review-id="${review.id}">
+                <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-shadow duration-300" data-review-id="${review.id}">
                     <div class="flex justify-between items-start mb-4">
-                        <a href="/resenha/${review.id}"><h2 class="text-xl font-semibold">${review.titulo} <span class="text-sm text-gray-500">${review.dt_criacao}</span></h2></a>
-                        <div>
-                            <button onclick="editReview(${review.id})" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded">Editar</button>
-                            <button onclick="deleteReview(${review.id})" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded">Deletar</button>
+                        <div class="flex-1">
+                            <a href="/resenha/${review.id}" class="block">
+                                <h2 class="text-xl font-bold text-gray-800 hover:text-orange-500 transition-colors mb-2">${review.titulo}</h2>
+                            </a>
+                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                <span><i class="fas fa-calendar mr-1"></i>${review.dt_criacao}</span>
+                                ${review.categoria ? `<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    <i class="fas fa-tag mr-1"></i>${review.categoria}
+                                </span>` : ''}
+                            </div>
+                        </div>
+                        <div class="flex space-x-2 ml-4">
+                            <button onclick="editReview(${review.id})" class="inline-flex items-center px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200 text-sm font-medium">
+                                <i class="fas fa-edit mr-1"></i>
+                                Editar
+                            </button>
+                            <button onclick="deleteReview(${review.id})" class="inline-flex items-center px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition duration-200 text-sm font-medium">
+                                <i class="fas fa-trash mr-1"></i>
+                                Deletar
+                            </button>
                         </div>
                     </div>
-                    <p class="text-gray-600 mb-4">${review.conteudo.substring(0, 500)}...</p>
+                    <div class="prose prose-sm text-gray-600 mb-4">
+                        ${review.conteudo.length > 300 ? review.conteudo.substring(0, 300) + '...' : review.conteudo}
+                    </div>
+                    <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+                        <a href="/resenha/${review.id}" class="text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors">
+                            <i class="fas fa-eye mr-1"></i>
+                            Ver Resenha Completa
+                        </a>
+                        <span class="text-xs text-gray-400">
+                            ${review.conteudo.length} caracteres
+                        </span>
+                    </div>
                 </div>
             `).join('');
 
             container.innerHTML = reviewsHTML;
+        }
+
+        function editReview(id) {
+            window.location.href = `/editar-resenha/${id}`;
         }
 
         async function deleteReview(id) {
@@ -79,10 +220,22 @@
             alertContainer.className = 'alert';
             alertContainer.id = 'alert-confirm';
             alertContainer.innerHTML = `
-                <div class="bg-red-600 text-white p-4 rounded shadow-md">
-                    <p>Tem certeza que deseja deletar esta resenha?</p>
-                    <button onclick="confirmDelete(${id})" class="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded">Sim</button>
-                    <button onclick="closeAlert()" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-1 px-2 rounded">Não</button>
+                <div class="bg-white rounded-2xl shadow-xl p-6 max-w-md w-full">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-red-500 text-2xl">⚠️</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-800 mb-2">Confirmar Exclusão</h3>
+                        <p class="text-gray-600 mb-6">Tem certeza que deseja deletar esta resenha? Esta ação não pode ser desfeita.</p>
+                        <div class="flex space-x-3">
+                            <button onclick="confirmDelete(${id})" class="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition duration-200 font-medium">
+                                Sim, Deletar
+                            </button>
+                            <button onclick="closeAlert()" class="flex-1 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition duration-200 font-medium">
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
                 </div>
             `;
             document.body.appendChild(alertContainer);
@@ -119,7 +272,7 @@
         }
 
         function alertSuccess(message) {
-            alertContainer('error', message);
+            alertContainer('success', message);
         }
 
         function alertError(message) {
@@ -128,11 +281,16 @@
 
         function alertContainer(type, message) {
             const alertDiv = document.createElement('div');
-            alertDiv.className = `alert fixed bg-${type === 'success' ? 'green' : 'red'}-500 text-white p-4 rounded shadow-md`;
-            alertDiv.style.top = '20px'; // Posição do alerta
+            alertDiv.className = `fixed bg-${type === 'success' ? 'green' : 'red'}-500 text-white p-4 rounded-lg shadow-lg z-50`;
+            alertDiv.style.top = '20px';
             alertDiv.style.left = '50%';
             alertDiv.style.transform = 'translateX(-50%)';
-            alertDiv.innerHTML = `<p>${message}</p>`;
+            alertDiv.innerHTML = `
+                <div class="flex items-center">
+                    <span class="mr-2">${type === 'success' ? '✅' : '❌'}</span>
+                    <p>${message}</p>
+                </div>
+            `;
 
             document.body.appendChild(alertDiv);
 

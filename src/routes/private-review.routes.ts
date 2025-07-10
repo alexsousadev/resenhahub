@@ -20,15 +20,15 @@ router.get("/minhas-resenhas", userAuth, (req: Request, res: Response) => {
 // criação de resenha
 router.post("/api/resenha", userAuth, async (req: Request, res: Response) => {
     try {
-        const { title, content } = req.body;
+        const { title, content, category } = req.body;
 
         const userId = req.session?.user ? await getIdUser(req.session.user) : null
 
-        if (!title || !content || !userId) {
-            return res.status(400).json({ error: "Ocorreu algum erro." });
+        if (!title || !content || !category || !userId) {
+            return res.status(400).json({ error: "Ocorreu algum erro. Todos os campos são obrigatórios." });
         }
 
-        createReview(title, content, userId)
+        createReview(title, content, category, userId)
 
         // Retorna uma resposta de sucesso
         res.status(201).json({ message: "Resenha criada com sucesso" });

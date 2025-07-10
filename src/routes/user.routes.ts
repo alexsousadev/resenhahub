@@ -54,10 +54,17 @@ router.post("/login", async (req: Request, res: Response) => {
 });
 
 router.get("/logout", (req: Request, res: Response) => {
+    // Limpar o cookie da sessão
+    res.clearCookie('connect.sid');
+    
+    // Destruir a sessão
     req.session.destroy((err) => {
         if (err) {
+            console.error("Erro ao destruir sessão:", err);
             return res.status(500).send("Erro ao encerrar a sessão.");
         }
+        
+        // Redirecionar para a página inicial
         res.redirect("/");
     });
 });
