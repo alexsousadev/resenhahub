@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin | Resenha Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary-color: #f59e0b;
+      --success-color: #10b981;
+      --danger-color: #ef4444;
+      --warning-color: #f97316;
+      --info-color: #06b6d4;
+      --dark-color: #1f2937;
+      --light-color: #f8fafc;
+      --border-color: #e2e8f0;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --bg-color: #f1f5f9;
+      --sidebar-color: #1e293b;
+      --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --card-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      --border-radius: 12px;
+      --border-radius-lg: 16px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-color);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    
+    .container {
+      display: flex;
+      min-height: 100vh;
+    }
+    
+    /* Sidebar Styles */
+    .sidebar {
+      width: 300px;
+      background: var(--sidebar-color);
+      color: white;
+      padding: 0;
+      box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+      position: relative;
+      overflow: hidden;
+      z-index: 10;
+    }
+    
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.05"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.05"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.05"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+      pointer-events: none;
+    }
+    
+    .sidebar-header {
+      text-align: center;
+      padding: 2.5rem 2rem 2rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .sidebar-header h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: var(--secondary-color);
+      letter-spacing: -0.025em;
+    }
+    
+    .sidebar-header p {
+      font-size: 0.875rem;
+      opacity: 0.7;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .nav-menu {
+      padding: 0 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .nav-item {
+      margin-bottom: 0.5rem;
+    }
+    
+    .nav-link {
+      display: flex;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      border-radius: var(--border-radius);
+      transition: var(--transition);
+      font-weight: 500;
+      position: relative;
+      overflow: hidden;
+      font-size: 0.95rem;
+    }
+    
+    .nav-link::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      transition: left 0.6s ease;
+    }
+    
+    .nav-link:hover::before {
+      left: 100%;
+    }
+    
+    .nav-link:hover, .nav-link.active {
+      background: var(--secondary-color);
+      color: white;
+      transform: translateX(8px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .nav-link i {
+      margin-right: 14px;
+      font-size: 1.1rem;
+      width: 20px;
+      text-align: center;
+    }
+    
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      padding: 2rem;
+      overflow-y: auto;
+      background: var(--bg-color);
+    }
+    
+    .dashboard-header {
+      background: white;
+      border-radius: var(--border-radius-lg);
+      padding: 2.5rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid var(--border-color);
+    }
+    
+    .header-left h1 {
+      font-size: 2.75rem;
+      font-weight: 800;
+      color: var(--dark-color);
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.025em;
+    }
+    
+    .header-left p {
+      color: var(--text-secondary);
+      font-size: 1.125rem;
+      font-weight: 500;
+    }
+    
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    
+    .admin-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--secondary-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 1.5rem;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      border: 3px solid white;
+    }
+    
+    .notification-badge {
+      position: relative;
+      width: 45px;
+      height: 45px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+      box-shadow: var(--card-shadow);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    
+    .notification-badge:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--card-shadow-hover);
+    }
+    
+    .notification-badge::after {
+      content: '3';
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: var(--danger-color);
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+      background: white;
+      border-radius: var(--border-radius-lg);
+      padding: 1.75rem;
+      box-shadow: var(--card-shadow);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+    
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--primary-color);
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--card-shadow-hover);
+    }
+    
+    .stat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    
+    .stat-icon {
+      width: 55px;
+      height: 55px;
+      border-radius: var(--border-radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      color: white;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .stat-icon.blue {
+      background: var(--primary-color);
+    }
+    
+    .stat-icon.orange {
+      background: var(--secondary-color);
+    }
+    
+    .stat-icon.purple {
+      background: #7c3aed;
+    }
+    
+    .stat-icon.green {
+      background: var(--success-color);
+    }
+    
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+      line-height: 1;
+    }
+    
+    .stat-label {
+      color: var(--text-secondary);
+      font-size: 1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .stat-change {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-top: 0.5rem;
+    }
+    
+    .stat-change.positive {
+      color: var(--success-color);
+    }
+    
+    .stat-change.negative {
+      color: var(--danger-color);
+    }
+    
+    /* Action Cards */
+    .action-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .action-card {
+      background: white;
+      border-radius: var(--border-radius-lg);
+      padding: 2rem;
+      box-shadow: var(--card-shadow);
+      transition: var(--transition);
+      border: 1px solid var(--border-color);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .action-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--primary-color);
+    }
+    
+    .action-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--card-shadow-hover);
+    }
+    
+    .action-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .action-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: var(--border-radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      color: white;
+      background: var(--primary-color);
+    }
+    
+    .action-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    
+    .action-description {
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+    
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 2px solid var(--border-color);
+      border-radius: var(--border-radius);
+      font-size: 0.95rem;
+      transition: var(--transition);
+      background: var(--light-color);
+      font-family: inherit;
+    }
+    
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+    
+    .form-control::placeholder {
+      color: var(--text-muted);
+    }
+    
+    /* Button Styles */
+    .btn {
+      padding: 0.875rem 1.5rem;
+      border: none;
+      border-radius: var(--border-radius);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: inherit;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    .btn:hover::before {
+      left: 100%;
+    }
+    
+    .btn-primary {
+      background: var(--primary-color);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .btn-secondary {
+      background: var(--secondary-color);
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .btn-success {
+      background: var(--success-color);
+      color: white;
+    }
+    
+    .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+      .sidebar {
+        width: 280px;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      }
+      
+      .action-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+      
+      .sidebar {
+        width: 100%;
+        padding: 1rem;
+      }
+      
+      .nav-menu {
+        display: flex;
+        gap: 0.5rem;
+        overflow-x: auto;
+        padding: 0;
+        margin: 0 -1rem;
+        padding: 0 1rem;
+      }
+      
+      .nav-item {
+        margin-bottom: 0;
+        flex-shrink: 0;
+      }
+      
+      .nav-link {
+        padding: 0.75rem 1rem;
+        white-space: nowrap;
+        font-size: 0.875rem;
+      }
+      
+      .main-content {
+        padding: 1rem;
+      }
+      
+      .dashboard-header {
+        flex-direction: column;
+        gap: 1.5rem;
+        text-align: center;
+        padding: 2rem;
+      }
+      
+      .header-left h1 {
+        font-size: 2.25rem;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      
+      .action-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      
+      .stat-card,
+      .action-card {
+        padding: 1.5rem;
+      }
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .stat-card,
+    .action-card {
+      animation: fadeInUp 0.6s ease-out;
+    }
+    
+    .stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .stat-card:nth-child(2) { animation-delay: 0.2s; }
+    .stat-card:nth-child(3) { animation-delay: 0.3s; }
+    .stat-card:nth-child(4) { animation-delay: 0.4s; }
+    
+    .action-card:nth-child(1) { animation-delay: 0.5s; }
+    .action-card:nth-child(2) { animation-delay: 0.6s; }
+    .action-card:nth-child(3) { animation-delay: 0.7s; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>Resenha Hub</h2>
+        <p>Painel Administrativo</p>
+      </div>
+      <nav class="nav-menu">
+        <div class="nav-item">
+          <a href="#avisos" class="nav-link active">
+            <i class="fas fa-bullhorn"></i>
+            Avisos
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#denuncias" class="nav-link">
+            <i class="fas fa-flag"></i>
+            Denúncias
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#moderacao" class="nav-link">
+            <i class="fas fa-shield-alt"></i>
+            Moderação
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#usuarios" class="nav-link">
+            <i class="fas fa-users"></i>
+            Usuários
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#relatorios" class="nav-link">
+            <i class="fas fa-chart-bar"></i>
+            Relatórios
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#configuracoes" class="nav-link">
+            <i class="fas fa-cog"></i>
+            Configurações
+          </a>
+        </div>
+      </nav>
+    </aside>
+    
+    <main class="main-content">
+      <header class="dashboard-header">
+        <div class="header-left">
+          <h1>Dashboard</h1>
+          <p>Gerencie sua plataforma de resenhas com eficiência</p>
+        </div>
+        <div class="header-right">
+          <div class="notification-badge">
+            <i class="fas fa-bell"></i>
+          </div>
+          <div class="admin-avatar">A</div>
+        </div>
+      </header>
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-header">
+            <div class="stat-icon blue">
+              <i class="fas fa-bullhorn"></i>
+            </div>
+          </div>
+          <div class="stat-number">3</div>
+          <div class="stat-label">Avisos Ativos</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-header">
+            <div class="stat-icon orange">
+              <i class="fas fa-flag"></i>
+            </div>
+          </div>
+          <div class="stat-number">8</div>
+          <div class="stat-label">Denúncias Pendentes</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-header">
+            <div class="stat-icon purple">
+              <i class="fas fa-shield-alt"></i>
+            </div>
+          </div>
+          <div class="stat-number">156</div>
+          <div class="stat-label">Resenhas Moderadas</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-header">
+            <div class="stat-icon green">
+              <i class="fas fa-users"></i>
+            </div>
+          </div>
+          <div class="stat-number">2.4k</div>
+          <div class="stat-label">Usuários Ativos</div>
+        </div>
+      </div>
+      
+      <div class="action-grid">
+        <section class="action-card" id="avisos">
+          <div class="action-header">
+            <div class="action-icon">
+              <i class="fas fa-bullhorn"></i>
+            </div>
+            <h3 class="action-title">Criar Aviso</h3>
+          </div>
+          <p class="action-description">Envie avisos importantes para todos os usuários da plataforma. Mantenha a comunidade informada sobre novidades e atualizações.</p>
+          <form>
+            <div class="form-group">
+              <label for="aviso-titulo">Título do Aviso</label>
+              <input type="text" id="aviso-titulo" class="form-control" placeholder="Digite um título claro e conciso">
+            </div>
+            <div class="form-group">
+              <label for="aviso-mensagem">Mensagem</label>
+              <textarea id="aviso-mensagem" class="form-control" rows="4" placeholder="Digite a mensagem completa do aviso"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-paper-plane"></i>
+              Publicar Aviso
+            </button>
+          </form>
+        </section>
+        
+        <section class="action-card" id="denuncias">
+          <div class="action-header">
+            <div class="action-icon">
+              <i class="fas fa-flag"></i>
+            </div>
+            <h3 class="action-title">Resolver Denúncias</h3>
+          </div>
+          <p class="action-description">Veja e resolva denúncias feitas por usuários sobre resenhas ou comentários inadequados. Mantenha a qualidade da comunidade.</p>
+          <div style="margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-weight: 600; color: var(--text-primary);">Denúncias Urgentes:</span>
+              <span style="background: var(--danger-color); color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.875rem; font-weight: 600;">3</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 600; color: var(--text-primary);">Total Pendentes:</span>
+              <span style="background: var(--warning-color); color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.875rem; font-weight: 600;">8</span>
+            </div>
+          </div>
+          <a href="#" class="btn btn-secondary">
+            <i class="fas fa-eye"></i>
+            Ver Todas as Denúncias
+          </a>
+        </section>
+        
+        <section class="action-card" id="moderacao">
+          <div class="action-header">
+            <div class="action-icon">
+              <i class="fas fa-shield-alt"></i>
+            </div>
+            <h3 class="action-title">Moderar Conteúdo</h3>
+          </div>
+          <p class="action-description">Edite, apague ou aprove resenhas de livros, filmes e outras mídias. Mantenha o padrão de qualidade da plataforma.</p>
+          <div style="margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-weight: 600; color: var(--text-primary);">Aguardando Aprovação:</span>
+              <span style="background: var(--warning-color); color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.875rem; font-weight: 600;">12</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 600; color: var(--text-primary);">Moderadas Hoje:</span>
+              <span style="background: var(--success-color); color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.875rem; font-weight: 600;">45</span>
+            </div>
+          </div>
+          <a href="#" class="btn btn-success">
+            <i class="fas fa-edit"></i>
+            Acessar Moderação
+          </a>
+        </section>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
