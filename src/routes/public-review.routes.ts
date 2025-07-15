@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { formatReview, formatReviews, getAllReviews, getReview } from "../controllers/review.controller";
+import { formatarResenha, formatarResenhas, pegarTodasResenhas, pegarResenha } from "../controllers/review.controller";
 import path from "path";
 import { userAuth } from "../middlewere/user-auth.middlewere";
 const router = Router();
@@ -12,8 +12,8 @@ router.get("/resenhas", userAuth, (req: Request, res: Response) => {
 // retornar todas as resenhas
 router.get("/api/resenhas", async (req: Request, res: Response) => {
     try {
-        const review = await getAllReviews();
-        const formattedReviews = await formatReviews(review);
+        const review = await pegarTodasResenhas();
+        const formattedReviews = await formatarResenhas(review);
         res.status(200).json(formattedReviews);
     } catch (error) {
         console.error(error);
@@ -26,8 +26,8 @@ router.get("/api/resenhas", async (req: Request, res: Response) => {
 router.get("/api/resenha/:id", async (req: Request, res: Response) => {
     try {
         const id = parseInt(req.params.id.trim());
-        const review = await getReview(id);
-        const formatedReview = await formatReview(review);
+        const review = await pegarResenha(id);
+        const formatedReview = await formatarResenha(review);
         res.status(200).json(formatedReview);
     } catch (error) {
         console.error(error);
@@ -35,6 +35,7 @@ router.get("/api/resenha/:id", async (req: Request, res: Response) => {
     }
 });
 
+// retornar a pagina de uma resenha
 router.get("/resenha/:id", async (req: Request, res: Response) => {
     const caminho = path.join(__dirname, '../../public/resenha.html');
     res.sendFile(caminho);

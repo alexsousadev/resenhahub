@@ -1,8 +1,5 @@
 import { Router, Request, Response } from "express";
-import { 
-    getRatingsByReview, 
-    getAverageRatingByReview 
-} from "../controllers/rating.controller";
+import { buscarAvaliacoesPorResenha, calcularMediaAvaliacaoPorResenha } from "../controllers/rating.controller";
 
 const router = Router();
 
@@ -15,8 +12,8 @@ router.get("/api/resenha/:resenhaId/avaliacoes", async (req: Request, res: Respo
             return res.status(400).json({ error: "ID da resenha deve ser um número válido." });
         }
 
-        const ratings = await getRatingsByReview(resenhaId);
-        const averageRating = await getAverageRatingByReview(resenhaId);
+        const ratings = await buscarAvaliacoesPorResenha(resenhaId);
+        const averageRating = await calcularMediaAvaliacaoPorResenha(resenhaId);
 
         res.status(200).json({ 
             ratings, 
@@ -37,7 +34,7 @@ router.get("/api/resenha/:resenhaId/media-avaliacoes", async (req: Request, res:
             return res.status(400).json({ error: "ID da resenha deve ser um número válido." });
         }
 
-        const averageRating = await getAverageRatingByReview(resenhaId);
+        const averageRating = await calcularMediaAvaliacaoPorResenha(resenhaId);
         res.status(200).json(averageRating);
     } catch (error: any) {
         console.error("Erro ao buscar média de avaliações:", error);

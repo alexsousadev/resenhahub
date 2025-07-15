@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
-import { createReview, updateReview, getAllReviewOfUser, checkReviewExists, formatReviews, deleteReview, reviewIsOfUser } from "../controllers/review.controller";
+import { criarResenha, atualizarResenha, pegarTodasResenhasDoUsuario, verificarResenhaExiste, formatarResenhas, deletarResenha, resenhaEdoUsuario } from "../controllers/review.controller";
 import { userAuth } from "../middlewere/user-auth.middlewere";
-import { getIdUser } from "../controllers/user.controller";
+import { pegarIdUsuario } from "../controllers/user.controller";
 import path from "path";
 
 const router = Router();
@@ -22,13 +22,13 @@ router.post("/api/resenha", userAuth, async (req: Request, res: Response) => {
     try {
         const { title, content, category } = req.body;
 
-        const userId = req.session?.user ? await getIdUser(req.session.user) : null
+        const userId = req.session?.user ? await pegarIdUsuario(req.session.user) : null
 
         if (!title || !content || !category || !userId) {
             return res.status(400).json({ error: "Ocorreu algum erro. Todos os campos são obrigatórios." });
         }
 
-        createReview(title, content, category, userId)
+        await criarResenha(title, content, category, userId)
 
         // Retorna uma resposta de sucesso
         res.status(201).json({ message: "Resenha criada com sucesso" });
@@ -41,15 +41,15 @@ router.post("/api/resenha", userAuth, async (req: Request, res: Response) => {
 // lista as resenhas do usuário
 router.get("/api/resenhas-usuario", userAuth, async (req: Request, res: Response) => {
     try {
-        const userId = req.session?.user ? await getIdUser(req.session.user) : null
+        const userId = req.session?.user ? await pegarIdUsuario(req.session.user) : null
 
         if (!userId) {
             return res.status(400).json({ error: "Ocorreu algum erro." });
         }
 
-        const allReviews = await getAllReviewOfUser(userId);
+        const allReviews = await pegarTodasResenhasDoUsuario(userId);
 
-        const formattedReviews = await formatReviews(allReviews);
+        const formattedReviews = await formatarResenhas(allReviews);
         res.status(200).send(formattedReviews);
     } catch (error) {
         console.error(error);
@@ -66,7 +66,7 @@ router.get("/editar-resenha/:id", userAuth, async (req: Request, res: Response) 
 // edição de resenha
 router.put("/api/resenha/:id", userAuth, async (req: Request, res: Response) => {
     try {
-        const userId = req.session?.user ? await getIdUser(req.session.user) : null;
+        const userId = req.session?.user ? await pegarIdUsuario(req.session.user) : null;
         const { title, content } = req.body;
         const id = parseInt(req.params.id.trim());
 
@@ -75,13 +75,13 @@ router.put("/api/resenha/:id", userAuth, async (req: Request, res: Response) => 
             return res.status(400).json({ error: "Ocorreu algum erro. Campos faltando ou usuário não autenticado." });
         }
 
-        const reviewAndUserIsValid = await reviewIsOfUser(id, userId);
+        const reviewAndUserIsValid = await resenhaEdoUsuario(id, userId);
 
         if (!reviewAndUserIsValid) {
             return res.status(401).json({ error: "Usuário não autorizado a editar esta resenha." });
         }
 
-        await updateReview(id, { id, title, content });
+        await atualizarResenha(id, { id, title, content });
         return res.status(200).json({ message: "Resenha atualizada com sucesso." });
     } catch (error) {
         console.error("Erro ao atualizar a resenha:", error);
@@ -93,7 +93,7 @@ router.put("/api/resenha/:id", userAuth, async (req: Request, res: Response) => 
 // deleção de resenha
 router.delete("/api/resenha/:id", userAuth, async (req: Request, res: Response) => {
     try {
-        const userId = req.session?.user ? await getIdUser(req.session.user) : null;
+        const userId = req.session?.user ? await pegarIdUsuario(req.session.user) : null;
         const idReview = parseInt(req.params.id.trim());
 
         if (!userId) {
@@ -101,16 +101,16 @@ router.delete("/api/resenha/:id", userAuth, async (req: Request, res: Response) 
         }
 
         // Verifica se a resenha existe
-        const reviewExists = await checkReviewExists(idReview);
+        const reviewExists = await verificarResenhaExiste(idReview);
 
         if (!reviewExists) {
             return res.status(404).json({ "error": "Essa resenha não existe." });
         }
 
         // Verifica se a resenha pertence ao usuário
-        const reviewAndUserIsValid = await reviewIsOfUser(idReview, userId);
+        const reviewAndUserIsValid = await resenhaEdoUsuario(idReview, userId);
         if (reviewAndUserIsValid) {
-            await deleteReview(idReview);
+            await deletarResenha(idReview);
             return res.status(200).json({
                 "message": "Resenha removida com sucesso"
             });

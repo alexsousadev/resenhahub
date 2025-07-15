@@ -2,28 +2,28 @@
 
 ## Descrição
 
-Este é um projeto de plataforma de resenhas que permite aos usuários criar e compartilhar suas resenhas sobre diversos tópicos. Ele possui a opção de comentários e respostas, onde usuários podem discutir e debater sobre as resenhas, criando uma comunidade ativa e engajada.
+O ResenhaHub é uma plataforma web inovadora dedicada à criação, compartilhamento e discussão de resenhas sobre livros, filmes, séries, produtos e muito mais. Nosso objetivo é proporcionar um espaço dinâmico onde usuários possam expressar opiniões, trocar experiências e construir conhecimento coletivo de forma colaborativa.
+
+Seja você um leitor ávido, cinéfilo, entusiasta de tecnologia ou apenas alguém em busca de opiniões confiáveis, o ResenhaHub oferece as ferramentas necessárias para compartilhar suas experiências e encontrar novas perspectivas.
 
 ## Funcionalidades Principais
 
-- Registro e autenticação de usuários
-- Criação, edição e exclusão de resenhas
-- Comentários em resenhas
-- Respostas a comentários
-- Sistema de busca de resenhas
+- **Cadastro e autenticação de usuários:** Garanta segurança e personalização ao criar sua conta e acessar a plataforma.
+- **Criação, edição e exclusão de resenhas:** Compartilhe suas opiniões sobre livros, filmes, séries, produtos e outros temas, com liberdade para editar ou remover suas publicações.
+- **Comentários e respostas:** Interaja com outros usuários comentando em resenhas e respondendo a comentários, promovendo discussões ricas e construtivas.
 
 ## Tecnologias Utilizadas
 
-- Node.js
-- Express.js
-- PostgreSQL (com Prisma ORM)
-- TailwindCSS
+- **Node.js & Express.js:** Backend robusto e escalável para gerenciamento das rotas, autenticação e lógica de negócio.
+- **PostgreSQL & Prisma ORM:** Banco de dados relacional de alta performance, com modelagem eficiente e integração facilitada via Prisma.
+- **TailwindCSS:** Estilização moderna e responsiva, garantindo uma interface agradável e adaptável.
+- **JWT (JSON Web Token):** Autenticação segura e baseada em tokens para proteger as rotas e dados dos usuários.
 
 ## Configuração do Projeto
 
 1. Clone o repositório:
    ```
-   git clone https://github.com/devounary/resenhahub
+   git clone https://github.com/alexsousadev/resenhahub
    cd resenhahub
    ```
 
@@ -64,12 +64,4 @@ Este é um projeto de plataforma de resenhas que permite aos usuários criar e c
 
 3. O servidor estará rodando em `http://localhost:3000`
 
-## Estrutura do Banco de Dados
-
-O projeto utiliza três modelos principais:
-
-1. **Usuario**: Armazena informações dos usuários registrados.
-2. **Resenha**: Contém as resenhas criadas pelos usuários.
-3. **Comentario**: Armazena comentários feitos em resenhas, incluindo respostas a outros comentários.
-
-Para mais detalhes, consulte o arquivo `schema.prisma`.
+Para mais detalhes sobre os campos e relacionamentos, consulte o arquivo `schema.prisma`.

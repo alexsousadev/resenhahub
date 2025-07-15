@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import dayjs from 'dayjs';
-import { getNameUser } from './user.controller';
+import { pegarNomeUsuario } from './user.controller';
 import { Comentario } from '@prisma/client';
 
 
@@ -35,6 +35,7 @@ export const listarComentarios = async (id: number) => {
     }
 };
 
+//criar um novo comentario
 export const criarComentario = async (texto: string, usuarioId: number, resenhaId: number, respostaAId?: number) => {
     try {
         const novoComentario = await prisma.comentario.create({
@@ -54,6 +55,7 @@ export const criarComentario = async (texto: string, usuarioId: number, resenhaI
     }
 };
 
+// atualizar um comentario
 export const atualizarComentario = async (id: number, texto: string) => {
     try {
         const comentariosExistente = await prisma.comentario.findUnique({
@@ -75,6 +77,7 @@ export const atualizarComentario = async (id: number, texto: string) => {
     }
 };
 
+// deletar um comentario
 export const deletarComentario = async (id: number) => {
     try {
         const comentario = await prisma.comentario.findUnique({
@@ -112,6 +115,7 @@ export const listarRespostas = async (comentarioId: number) => {
     }
 };
 
+// responder a um comentario
 export const responderComentario = async (texto: string, usuarioId: number, resenhaId: number, respostaAId: number) => {
     try {
         const novaResposta = await prisma.comentario.create({
@@ -129,6 +133,7 @@ export const responderComentario = async (texto: string, usuarioId: number, rese
     }
 };
 
+// atualizar uma resposta de comentario
 export const atualizarRespostaComentario = async (id: number, texto: string) => {
     try {
         const respostaExistente = await prisma.comentario.findUnique({
@@ -147,6 +152,7 @@ export const atualizarRespostaComentario = async (id: number, texto: string) => 
     }
 };
 
+// deletar uma resposta de comentario
 export const deletarRespostaComentario = async (id: number) => {
     try {
         const resposta = await prisma.comentario.findUnique({
@@ -171,7 +177,7 @@ export const deletarRespostaComentario = async (id: number) => {
 export const formatResposta = async (resposta: Comentario): Promise<formattedResposta> => {
     try {
         let formattedDate = dayjs(new Date(resposta.dt_criacao)).format('DD/MM/YYYY HH:mm');
-        const user = await getNameUser(resposta.usuarioId);
+        const user = await pegarNomeUsuario(resposta.usuarioId);
 
         const formatted = {
             id: resposta.id,

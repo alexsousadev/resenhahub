@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 
 const JWT_KEY = process.env.JWT_SECRET_KEY || 'secret dog'
 
+// middleware de autenticação
 function userAuth(req: Request, res: Response, next: NextFunction) {
     const token = req.session.user;
 

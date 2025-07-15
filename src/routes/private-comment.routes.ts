@@ -2,7 +2,7 @@ import { Router } from "express";
 import { Request, Response } from "express";
 import { criarComentario, atualizarComentario, deletarComentario, responderComentario, atualizarRespostaComentario, deletarRespostaComentario, listarRespostas, formatResposta, formatRespostas } from "../controllers/comment.controller";
 import { userAuth } from "../middlewere/user-auth.middlewere";// middleware de autenticação
-import { getIdUser } from "../controllers/user.controller";
+import { pegarIdUsuario } from "../controllers/user.controller";
 
 const router = Router();
 
@@ -11,7 +11,7 @@ const router = Router();
 // Criar um novo comentário
 router.post('/api/comentario/criar', userAuth, async (req: Request, res: Response) => {
     try {
-        const userId = req.session?.user ? await getIdUser(req.session.user) : null;
+        const userId = req.session?.user ? await pegarIdUsuario(req.session.user) : null;
         if (!userId) {
             return res.status(401).send({ message: "Usuário não autenticado." });
         }
@@ -32,7 +32,7 @@ router.put('/api/comentario/atualizar/:id', userAuth, async (req: Request, res: 
     const { texto } = req.body;//obtém o novo comentario
 
     try {
-        const userId = req.session?.user ? await getIdUser(req.session.user) : null;
+        const userId = req.session?.user ? await pegarIdUsuario(req.session.user) : null;
         if (!userId) {
             return res.status(401).send({ message: "Usuário não autenticado." });
         }
@@ -55,7 +55,7 @@ router.put('/api/comentario/atualizar/:id', userAuth, async (req: Request, res: 
 //deletar comentário
 router.delete('/api/comentario/deletar/:id', userAuth, async (req: Request, res: Response) => {
     try {
-        const userId = req.session?.user ? await getIdUser(req.session.user) : null;
+        const userId = req.session?.user ? await pegarIdUsuario(req.session.user) : null;
         if (!userId) {
             return res.status(401).send({ message: "Usuário não autenticado." });
         }
@@ -92,7 +92,7 @@ router.get('/api/comentario/respostas/:comentarioId', async (req: Request, res: 
 //criar um comentario como resposta de outro comentario
 router.post('/api/comentario/responder', userAuth, async (req: Request, res: Response) => {
     try {
-        const userId = req.session?.user ? await getIdUser(req.session.user) : null;
+        const userId = req.session?.user ? await pegarIdUsuario(req.session.user) : null;
         if (!userId) {
             return res.status(401).send({ message: "Usuário não autenticado." });
         }
@@ -116,7 +116,7 @@ router.put('/api/comentario/atualizar-resposta/:id', userAuth, async (req: Reque
     const { texto } = req.body; // Obtém o novo texto da resposta
 
     try {
-        const userId = req.session?.user ? await getIdUser(req.session.user) : null;
+        const userId = req.session?.user ? await pegarIdUsuario(req.session.user) : null;
         if (!userId) {
             return res.status(401).send({ message: "Usuário não autenticado." });
         }
@@ -135,7 +135,7 @@ router.put('/api/comentario/atualizar-resposta/:id', userAuth, async (req: Reque
 
 router.delete('/api/comentario/deletar-resposta/:id', userAuth, async (req: Request, res: Response) => {
     try {
-        const userId = req.session?.user ? await getIdUser(req.session.user) : null;
+        const userId = req.session?.user ? await pegarIdUsuario(req.session.user) : null;
         if (!userId) {
             return res.status(401).send({ message: "Usuário não autenticado." });
         }

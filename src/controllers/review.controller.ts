@@ -1,7 +1,7 @@
 import { PrismaService } from "../services/database.service";
 import { v4 as uuidv4 } from 'uuid'; // Utilizando a função uuidv4 para gerar um nome único para cada resenha
 import { readFileSync, writeFileSync } from "fs";
-import { getNameUser, getIdUser } from "./user.controller";
+import { pegarNomeUsuario, pegarIdUsuario } from "./user.controller";
 import path from "path";
 import dayjs from "dayjs";
 const prisma = new PrismaService();
@@ -26,7 +26,7 @@ type formattedRev = {
 }
 
 // pegando uma resenha especifica usando ID
-const getReview = async (id: number) => {
+const pegarResenha = async (id: number) => {
     try {
         const review = await prisma.resenha.findUnique({
             where: {
@@ -46,7 +46,7 @@ const getReview = async (id: number) => {
 };
 
 // pegando todas as resenhas de um usuário
-const getAllReviewOfUser = async (id: number) => {
+const pegarTodasResenhasDoUsuario = async (id: number) => {
     try {
         const review = await prisma.resenha.findMany({
             where: {
@@ -67,7 +67,7 @@ const getAllReviewOfUser = async (id: number) => {
 
 
 // criando nova resenha de um usuario
-const createReview = async (titulo: string, conteudo: string, categoria: string, IdUsuario: number) => {
+const criarResenha = async (titulo: string, conteudo: string, categoria: string, IdUsuario: number) => {
 
     // gerando o arquivo .md do post
     const fileName = `${uuidv4()}`;
@@ -111,7 +111,7 @@ const createReview = async (titulo: string, conteudo: string, categoria: string,
 
 // ROTAS PÚBLICAS
 // pegando todas as resenhas de um usuário
-const getAllReviews = async () => {
+const pegarTodasResenhas = async () => {
     try {
         // Obtém todas as resenhas da tabela
         const reviews = await prisma.resenha.findMany();
@@ -124,8 +124,8 @@ const getAllReviews = async () => {
     }
 };
 
-
-const formatReview = async (review: Review) => {
+// Formatar uma resenha
+const formatarResenha = async (review: Review) => {
     try {
         let content = "Conteúdo não disponível";
         
@@ -141,7 +141,7 @@ const formatReview = async (review: Review) => {
         let formattedDate = dayjs(new Date(review.dt_criacao)).format('DD/MM/YYYY HH:mm');
         let formattedDateMod = dayjs(new Date(review.dt_ultima_edicao)).format('DD/MM/YYYY HH:mm');
 
-        const user = await getNameUser(review.usuarioId);
+        const user = await pegarNomeUsuario(review.usuarioId);
 
         // Buscar categorias da resenha
         const resenhaComCategorias = await prisma.resenha.findUnique({
@@ -171,12 +171,12 @@ const formatReview = async (review: Review) => {
 };
 
 // retorna várias resenhas formatadas
-const formatReviews = async (reviews: Review[]) => {
+const formatarResenhas = async (reviews: Review[]) => {
     const formattedReviews: formattedRev[] = [];
 
     for (let review of reviews) {
         try {
-            const newReview = await formatReview(review);
+            const newReview = await formatarResenha(review);
             formattedReviews.push(newReview);
         } catch (error) {
             console.error(`Erro ao formatar resenha ${review.id}:`, error);
@@ -198,7 +198,7 @@ const formatReviews = async (reviews: Review[]) => {
 
 
 // procura uma resenha especifica de um usuario
-const reviewIsOfUser = async (reviewId: number, userId: number) => {
+const resenhaEdoUsuario = async (reviewId: number, userId: number) => {
     const review = await prisma.resenha.findUnique({
         where: {
             id: reviewId,
@@ -208,7 +208,7 @@ const reviewIsOfUser = async (reviewId: number, userId: number) => {
     return review !== null;
 }
 
-const checkReviewExists = async (reviewId: number) => {
+const verificarResenhaExiste = async (reviewId: number) => {
     const review = await prisma.resenha.findUnique({
         where: {
             id: reviewId
@@ -219,7 +219,7 @@ const checkReviewExists = async (reviewId: number) => {
 
 
 // apagando resenha
-const deleteReview = async (reviewId: number) => {
+const deletarResenha = async (reviewId: number) => {
     await prisma.$transaction(async (prisma) => {
         // Deletar todos os comentários associados à resenha
         await prisma.comentario.deleteMany({
@@ -238,7 +238,7 @@ const deleteReview = async (reviewId: number) => {
 };
 
 
-async function updateReview(id: number, data: { id: number, title: string; content: string }) {
+async function atualizarResenha(id: number, data: { id: number, title: string; content: string }) {
     try {
         // Obtém o caminho do arquivo Markdown 
 
@@ -275,4 +275,4 @@ async function updateReview(id: number, data: { id: number, title: string; conte
 
 
 
-export { getReview, updateReview, reviewIsOfUser, checkReviewExists, deleteReview, formatReview, formatReviews, createReview, getAllReviews, getAllReviewOfUser };
+export { pegarResenha, atualizarResenha, resenhaEdoUsuario, verificarResenhaExiste, deletarResenha, formatarResenha, formatarResenhas, criarResenha, pegarTodasResenhas, pegarTodasResenhasDoUsuario };

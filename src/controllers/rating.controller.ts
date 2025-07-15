@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 // Criar uma nova avaliação
-export const createRating = async (userId: number, resenhaId: number, nota: number) => {
+export const criarAvaliacao = async (userId: number, resenhaId: number, nota: number) => {
     try {
         // Verificar se a nota está no intervalo válido (0-10)
         if (nota < 0 || nota > 10) {
@@ -92,7 +92,7 @@ export const createRating = async (userId: number, resenhaId: number, nota: numb
 };
 
 // Atualizar uma avaliação existente
-export const updateRating = async (userId: number, resenhaId: number, novaNota: number) => {
+export const atualizarAvaliacao = async (userId: number, resenhaId: number, novaNota: number) => {
     try {
         // Verificar se a nota está no intervalo válido (0-10)
         if (novaNota < 0 || novaNota > 10) {
@@ -149,7 +149,7 @@ export const updateRating = async (userId: number, resenhaId: number, novaNota: 
 };
 
 // Buscar avaliação de um usuário para uma resenha específica
-export const getRatingByUserAndReview = async (userId: number, resenhaId: number) => {
+export const buscarAvaliacaoPorUsuarioEResenha = async (userId: number, resenhaId: number) => {
     try {
         const rating = await prisma.avaliacao.findUnique({
             where: {
@@ -182,7 +182,7 @@ export const getRatingByUserAndReview = async (userId: number, resenhaId: number
 };
 
 // Buscar todas as avaliações de uma resenha
-export const getRatingsByReview = async (resenhaId: number) => {
+export const buscarAvaliacoesPorResenha = async (resenhaId: number) => {
     try {
         const ratings = await prisma.avaliacao.findMany({
             where: {
@@ -209,7 +209,7 @@ export const getRatingsByReview = async (resenhaId: number) => {
 };
 
 // Buscar todas as avaliações feitas por um usuário
-export const getRatingsByUser = async (userId: number) => {
+export const buscarAvaliacoesPorUsuario = async (userId: number) => {
     try {
         const ratings = await prisma.avaliacao.findMany({
             where: {
@@ -236,7 +236,7 @@ export const getRatingsByUser = async (userId: number) => {
 };
 
 // Deletar uma avaliação
-export const deleteRating = async (userId: number, resenhaId: number) => {
+export const deletarAvaliacao = async (userId: number, resenhaId: number) => {
     try {
         // Verificar se a avaliação existe e pertence ao usuário
         const existingRating = await prisma.avaliacao.findUnique({
@@ -269,7 +269,7 @@ export const deleteRating = async (userId: number, resenhaId: number) => {
 };
 
 // Calcular média das avaliações de uma resenha
-export const getAverageRatingByReview = async (resenhaId: number) => {
+export const calcularMediaAvaliacaoPorResenha = async (resenhaId: number) => {
     try {
         const result = await prisma.avaliacao.aggregate({
             where: {
@@ -293,7 +293,7 @@ export const getAverageRatingByReview = async (resenhaId: number) => {
 };
 
 // Verificar se uma avaliação existe
-export const checkRatingExists = async (userId: number, resenhaId: number) => {
+export const verificarAvaliacaoExiste = async (userId: number, resenhaId: number) => {
     try {
         const rating = await prisma.avaliacao.findUnique({
             where: {

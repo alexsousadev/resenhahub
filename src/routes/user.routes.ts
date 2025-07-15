@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { checkLogin, checkHasUser, generateToken, createUser } from "../controllers/user.controller";
+import { validarLogin, verificarUsuarioExiste, gerarToken, criarUsuario } from "../controllers/user.controller";
 import { genSaltSync, hashSync } from 'bcrypt';
 import { userAuth } from '../middlewere/user-auth.middlewere'
 import { z, ZodError } from 'zod'
@@ -32,14 +32,14 @@ router.post("/login", async (req: Request, res: Response) => {
         const password = req.body.password;
 
         // Validar credenciais do usuário
-        const isValidLogin = await checkLogin(email, password);
+        const isValidLogin = await validarLogin(email, password);
         
         if (!isValidLogin) {
             return res.status(401).json({ error: "Email ou senha incorretos" });
         }
 
         // Gerar token JWT
-        const token: string = generateToken(email);
+        const token: string = gerarToken(email);
         
         // Armazenar token na sessão
         req.session.user = token;
@@ -80,12 +80,12 @@ router.post("/cadastro", async (req: Request, res: Response) => {
         const salt = genSaltSync(10);
         const hashedPassword = hashSync(password, salt);
 
-        const registerValidation = await checkHasUser(email);
+        const registerValidation = await verificarUsuarioExiste(email);
         if (registerValidation) {
             return res.status(409).json({ error: "Usuário já existe" }); // 409 Conflict
         }
 
-        createUser(name, email, hashedPassword)
+        criarUsuario(name, email, hashedPassword)
         return res.redirect("/login")
     } catch (error) {
 

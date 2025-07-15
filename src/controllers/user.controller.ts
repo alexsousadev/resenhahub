@@ -7,7 +7,7 @@ const prisma = new PrismaService();
 const JWT_KEY = process.env.JWT_SECRET_KEY || 'secret dog'
 
 // Validação do login
-export async function checkLogin(email: string, password: string): Promise<boolean> {
+export async function validarLogin(email: string, password: string): Promise<boolean> {
     try {
         // Simulação de consulta ao banco de dados (por exemplo, usando Prisma ou outra ferramenta)
         const user = await prisma.usuario.findUnique({ where: { email } });
@@ -27,7 +27,7 @@ export async function checkLogin(email: string, password: string): Promise<boole
 
 
 // Checa se o usuário existe
-export async function checkHasUser(email: string) {
+export async function verificarUsuarioExiste(email: string) {
     const user = await prisma.usuario.findUnique({
         where: { email: email },  // Busca o usuário pelo email
     });
@@ -37,7 +37,7 @@ export async function checkHasUser(email: string) {
 
 
 // cria um novo usuario 
-export const createUser = async (nome: string, email: string, senha: string) => {
+export const criarUsuario = async (nome: string, email: string, senha: string) => {
     await prisma.usuario.create({
         data: {
             nome: nome,
@@ -49,7 +49,7 @@ export const createUser = async (nome: string, email: string, senha: string) => 
 }
 
 // geração do token
-export const generateToken = (email: string) => {
+export const gerarToken = (email: string) => {
     const JWT_KEY = process.env.JWT_SECRET_KEY
 
     if (!JWT_KEY) {
@@ -62,7 +62,7 @@ export const generateToken = (email: string) => {
 }
 
 // pega id do usuario com base no token
-const getIdUser = async (token: string) => {
+const pegarIdUsuario = async (token: string) => {
     try {
 
         if (!JWT_KEY) {
@@ -70,7 +70,7 @@ const getIdUser = async (token: string) => {
         }
 
         if (token) {
-            const decoded = await verifyTokenAsync(token, JWT_KEY)
+            const decoded = await verificarTokenAsync(token, JWT_KEY)
 
             if (decoded && typeof decoded !== 'string' && 'email' in decoded) {
 
@@ -90,7 +90,7 @@ const getIdUser = async (token: string) => {
 }
 
 // Função para verificar o token de forma assíncrona
-const verifyTokenAsync = (token: string, secret: string): Promise<JwtPayload | string> => {
+const verificarTokenAsync = (token: string, secret: string): Promise<JwtPayload | string> => {
     return new Promise((resolve, reject) => {
         verify(token, secret, (err, decoded) => {
             if (err || decoded == undefined) {
@@ -101,11 +101,8 @@ const verifyTokenAsync = (token: string, secret: string): Promise<JwtPayload | s
     });
 };
 
-
-
-
 // pega o nome de um usuário com base no id
-const getNameUser = async (id: number) => {
+const pegarNomeUsuario = async (id: number) => {
     const user = await prisma.usuario.findUnique({
         where: {
             id: id
@@ -119,4 +116,4 @@ const getNameUser = async (id: number) => {
     return user?.nome;
 }
 
-export { getIdUser, getNameUser };
+export { pegarIdUsuario, pegarNomeUsuario };
